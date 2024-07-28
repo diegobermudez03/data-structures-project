@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include <list>
 
+#include "data_organization.h"
+
 void enter_command(std::string& command);
 
 void cargar_command(std::list<std::string>* words);
@@ -20,11 +22,15 @@ void fill_help_commands();
 std::list<std::string>* split(std::string&command);
 int char_finder(std::string& command, char end_char, int begin_pos);
 
+
+//global variables
 std::unordered_map<std::string, std::string> help_map;
+DataOrganization* data_org;
 
 //Entry point of the program, simply prints the entry command char $ and listens for inputs
 int main(int argsn, char** args){
     fill_help_commands();
+    data_org = new DataOrganization;
     std::string command;
     while(true){
         std::cout << "\n\n$";
@@ -61,7 +67,7 @@ void enter_command(std::string& command){
 void ayuda_command(std::list<std::string>* words){
     if(words->size() == 0){
         std::unordered_map<std::string, std::string>::iterator it = help_map.begin();
-        for(it = help_map.begin(); it != help_map.end(); ++it){
+        for(; it != help_map.end(); ++it){
             std::cout << "\n  " << it->first << " \n" << it->second << "\n";
         }
         return;
@@ -81,6 +87,7 @@ void cargar_command(std::list<std::string>* words){
     }
     std::string file_name = words->back();
     //TO DO NEXT 
+    data_org->load_file(file_name);
     std::cout << "\nComando valido";
 }
 
@@ -205,10 +212,10 @@ void fill_help_commands(){
 int char_finder(std::string& command, char end_char, int begin_pos){
     if(begin_pos < command.size()){
         for(int i = begin_pos; i < command.size(); i++){
-            if(command.at(i) == end_char) return i;
+            if(command.at(i) == end_char) return (i);
         }
     }
-    return command.size();
+    return (command.size());
 }
 
 std::list<std::string>* split(std::string&command){
@@ -225,5 +232,5 @@ std::list<std::string>* split(std::string&command){
             break;
         }
     }
-    return words;
+    return (words);
 }
