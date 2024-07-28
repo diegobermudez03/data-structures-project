@@ -17,7 +17,6 @@ void ruta_corta_centro_command(std::list<std::string>* words);
 void ayuda_command(std::list<std::string>* words);
 
 void fill_help_commands();
-std::string substring(std::string& command, int in_pos, int end_pos);
 std::list<std::string>* split(std::string&command);
 int char_finder(std::string& command, char end_char, int begin_pos);
 
@@ -39,7 +38,7 @@ void enter_command(std::string& command){
     std::list<std::string>* words = split(command);
     std::string first_word = words->back(); //gets the initial command
     words->pop_back();  //pops the command from the list
-    void (*command_type)(std::list<std::string>*);
+    void (*command_type)(std::list<std::string>*) = nullptr;
     if(first_word == "cargar") command_type = cargar_command;
     else if(first_word == "listado") command_type =  listado_command;
     else if(first_word == "envolvente") command_type = envolvente_command;
@@ -54,11 +53,6 @@ void enter_command(std::string& command){
     else{
         std::cout << "\ncomando invalido";
     }
-
-    /*std::list<std::string>::iterator it = words->begin();
-    for(; it != words->end();++it){
-        std::cout << "\n"<< *it;
-    }*/
     if(command_type != nullptr) command_type(words);
     delete words;
 }
@@ -85,6 +79,7 @@ void cargar_command(std::list<std::string>* words){
         std::cout << "\nComando invalido\n" << help_map["cargar"];
         return;
     }
+    std::string file_name = words->back();
     //TO DO NEXT 
     std::cout << "\nComando valido";
 }
@@ -92,7 +87,7 @@ void cargar_command(std::list<std::string>* words){
 void listado_command(std::list<std::string>* words){
     //there shouldn't be any words at all, so if there are, the command it's wrong
     if(words->size() != 0){
-        std::cout << "\nComando valido\n" << help_map["listado"];
+        std::cout << "\nComando invalido\n" << help_map["listado"];
         return;
     }
     //TO DO NEXT
@@ -100,31 +95,96 @@ void listado_command(std::list<std::string>* words){
 }
 
 void envolvente_command(std::list<std::string>* words){
+    if(words->size() > 1){
+        std::cout << "\nComando invalido\n" << help_map["envolvente"];
+        return;
+    }
+    std::string file_name = words->size() == 1 ? words->back(): "";
+    //TO DO NEXT
     std::cout << "\nComando valido";
 }
 
 void descargar_command(std::list<std::string>* words){
+    if(words->size() != 1){
+        std::cout << "\nComando invalido\n" << help_map["descargar"];
+        return;
+    }
+    std::string file_name = words->back();
+    //TO DO NEXT
     std::cout << "\nComando valido";
 }
 
 void guardar_command(std::list<std::string>* words){
+    if(words->size() != 2){
+        std::cout << "\nComando invalido\n" << help_map["guardar"];
+        return;
+    }
+    std::string object_name = words->back();
+    words->pop_back();
+    std::string file_name = words->back();
+    //TO DO NEXT
     std::cout << "\nComando valido";
 }
 
 void v_cercano_command(std::list<std::string>* words){
-    std::cout << "\nComando valido";
+    if(words->size() == 4 || words->size() == 3){
+        int px, py, pz;
+        try{
+            px = std::stoi(words->back());
+            words->pop_back();
+            py = std::stoi(words->back());
+            words->pop_back();
+            pz = std::stoi(words->back());
+            words->pop_back();
+            //TO DO NEXT
+            std::cout << "\nComando valido";
+            return;
+        }catch(const std::exception& e){}
+    }
+    std::cout << "\nComando invalido\n" << help_map["v_cercano"];
+    return;
 }
 
 void v_cercanos_caja_command(std::list<std::string>* words){
+    if(words->size() != 1){
+        std::cout << "\nComando invalido\n" << help_map["v_cercanos_caja"];
+        return;
+    }
+    //TO DO NEXT
     std::cout << "\nComando valido";
 }
 
 void ruta_corta_command(std::list<std::string>* words){
-    std::cout << "\nComando valido";
+    if(words->size() == 3){
+        int i1, i2;
+        try{
+            i1 = std::stoi(words->back());
+            words->pop_back();
+            i2 = std::stoi(words->back());
+            words->pop_back();
+            //TO DO NEXT
+            std::cout << "\nComando valido";
+            return;
+        }catch(const std::exception& e){}
+    }
+    std::cout << "\nComando invalido\n" << help_map["ruta_corta"];
+    return;
 }
 
 void ruta_corta_centro_command(std::list<std::string>* words){
-    std::cout << "\nComando valido";
+    if(words->size() == 2){
+        int i1;
+        try{
+            i1 = std::stoi(words->back());
+            words->pop_back();
+        }catch(const std::exception& e){}
+        std::string object_name = words->back();
+        //TO DO NEXT
+        std::cout << "\nComando valido";
+        return;
+    }
+    std::cout << "\nComando invalido\n" << help_map["ruta_corta"];
+    return;
 }
 
 //function called at the very beginning of the program, it fills a hashmap with all the possible help commands and its correspondent help description
@@ -139,15 +199,6 @@ void fill_help_commands(){
     help_map["v_cercanos_caja"] = "  v_cercanos_caja 'nombre_objeto'\n    identifica los vertices del objeto mas cercanos";
     help_map["ruta_corta"] = "  ruta-corta 'i1 i2 nombre_objeto'\n    la ruta mas corta que conexta los vertices i1 y i2 del objeto";
     help_map["ruta_corta_centro"] = "  ruta_corta_centro 'i1 nombre_objeto'\n    identifica los indices de los vertices que conforman la ruta mas corta entre vertice dado y el centro del objeto";
-}
-
-
-//Own substring method, so that we can control if the initial index is out of range
-std::string substring(std::string& command, int in_pos, int end_pos){
-    end_pos = end_pos < 0 ? 4294967295 : end_pos;
-    if(command.size() < in_pos) return "";
-    return command.substr(in_pos, end_pos);
-
 }
 
 //inside function, used to "split" the commands and get the first word, second word, etc
