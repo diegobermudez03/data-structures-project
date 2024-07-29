@@ -8,7 +8,7 @@ class DataOrganization{
         std::vector<Object3d*>* objects = new std::vector<Object3d*>;
         bool exists(std::string& object_name);
     public:
-        short load_file(std::string& file_name);
+        short load_file(std::string& file_name, std::string& object_name);
         std::vector<Object3d*>* get_objects();
         ~DataOrganization();
 };

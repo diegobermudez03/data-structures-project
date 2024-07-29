@@ -30,11 +30,11 @@ DataOrganization* data_org;
 
 //Entry point of the program, simply prints the entry command char $ and listens for inputs
 int main(int argsn, char** args){
-    fill_help_commands();
+    fill_help_commands(); 
     data_org = new DataOrganization;
     std::string command;
     while(true){
-        std::cout << "\n\n$";
+        std::cout << "\n\n$";   //prints terminal character
         getline(std::cin, command);
         enter_command(command);
     }
@@ -42,10 +42,12 @@ int main(int argsn, char** args){
 
 //logic redirection of commands, it redirects each command to its correspondent controller
 void enter_command(std::string& command){
-    std::list<std::string>* words = split(command);
+    std::list<std::string>* words = split(command); //we split the command into the words, so the command is easy to manage
     std::string first_word = words->back(); //gets the initial command
-    words->pop_back();  //pops the command from the list
+    words->pop_back();  //pops the command word from the list, so we are left with the remaining of the command
     void (*command_type)(std::list<std::string>*) = nullptr;
+    //depending on the first word of the command, our function pointer will point to the indicated function
+    //its made this way since all funcions receive the same parameters, so we mantain the code DRY
     if(first_word == "cargar") command_type = cargar_command;
     else if(first_word == "listado") command_type =  listado_command;
     else if(first_word == "envolvente") command_type = envolvente_command;
@@ -61,11 +63,12 @@ void enter_command(std::string& command){
         std::cout << "\ncomando invalido";
     }
     if(command_type != nullptr) command_type(words);
-    delete words;
+    delete words;   //cleaning memory
 }
 
 //controller for help command of any type, if any type was given, it shows all the commands help
 void ayuda_command(std::list<std::string>* words){
+    //if there are no words, that means that the command was only "help", so then, we print all the help commands
     if(words->size() == 0){
         std::unordered_map<std::string, std::string>::iterator it = help_map.begin();
         for(; it != help_map.end(); ++it){
@@ -73,9 +76,10 @@ void ayuda_command(std::list<std::string>* words){
         }
         return;
     }
+    //we get the word for which the help was asked
     std::string word = words->back();
     std::string help;
-    help = help_map[word];
+    help = help_map[word];  //we retrieve the help text from the map, so we can print, if there's no entry in the map, the command simply doesn't exist
     if(help.empty()) help = "comando no existe";
     std::cout << "\n" << help;
 }
@@ -86,10 +90,18 @@ void cargar_command(std::list<std::string>* words){
         std::cout << "\nComando invalido\n" << help_map["cargar"];
         return;
     }
+    //we get the file_name from the command
     std::string file_name = words->back();
-    //TO DO NEXT 
-    data_org->load_file (file_name);
-    std::cout << "\nComando valido";
+    //this is so we can pass a variable by reference to the function, since the object name is only known when reading the file
+    //is our way to get the object's name from the function, so we can print it if needed
+    std::string object_name;
+    short code = data_org->load_file(file_name, object_name);
+    switch(code){
+        case 0: std::cout << "\n(Archivo vacio o incompleto) El archivo " << file_name << " no contiene un objeto 3D valido";break;
+        case 1: std::cout << "\n(Archivo no existe) El archivo " << file_name << " no existe o es ilegible";break;
+        case 2: std::cout << "\n(Objeto ya existe) El objeto " << object_name << " ya ha sido cargado en memoria";break;
+        case 3: std::cout << "\n(Resultado exitoso) El objeto " << object_name << " ha sido cargado exitosamente desde el archivo";break;
+    }
 }
 
 void listado_command(std::list<std::string>* words){
@@ -98,12 +110,18 @@ void listado_command(std::list<std::string>* words){
         std::cout << "\nComando invalido\n" << help_map["listado"];
         return;
     }
+    //we get the objects stored in our DataOrg object
     std::vector<Object3d*>* objects = data_org->get_objects();
+    if(objects->empty()){
+        std::cout <<"\n(Memoria vacia) Ningun objeto ha sido cargado en memoria";
+        return;
+    }
+    std::cout << "\n(Resultado exitoso) Hay " << objects->size() << " objetos en memoria:\n";
     std::vector<Object3d*>::iterator it = objects->begin();
+    //we iterate over the vector of objects and we print the info of each one
     for(; it!= objects->end(); ++it){
         std::cout << (*it)->get_name() << " contiene " << std::to_string((*it)->get_count_vertices()) << " vertices, " << std::to_string((*it)->get_count_lines()) << " aristas y " << std::to_string((*it)->get_count_faces()) << " caras";
     }
-    std::cout << "\nComando valido";;
 }
 
 void envolvente_command(std::list<std::string>* words){
@@ -215,6 +233,7 @@ void fill_help_commands(){
 
 //inside function, used to "split" the commands and get the first word, second word, etc
 int char_finder(std::string& command, char end_char, int begin_pos){
+    //we simply receive a starting position and the char we are  looking for, the rest is simple iteration
     if(begin_pos < command.size()){
         for(int i = begin_pos; i < command.size(); i++){
             if(command.at(i) == end_char) return (i);
@@ -223,12 +242,15 @@ int char_finder(std::string& command, char end_char, int begin_pos){
     return (command.size());
 }
 
+//this function is our own split implementation, so we get a list of words, that we can easily manage to understand the exact command
 std::list<std::string>* split(std::string&command){
     std::list<std::string>* words = new std::list<std::string>;
     int starting = 0;
     int ending = 0;
     while(true){
         try{
+            //we use our char_finder function in order to find every space, taking as the starting point the ending
+            //index of the previous word +1, this is how we divide the sentence into words
             ending = char_finder(command, ' ', starting);
             std::string word = command.substr(starting, ending-starting);
             if(!word.empty()) words->push_front(word);
