@@ -1,6 +1,7 @@
 #include "data_organization.h"
 #include <fstream>
 #include <vector>
+#include <iostream>
 
 short DataOrganization::load_file(std::string& file_name){
     std::ifstream file(file_name);
@@ -10,10 +11,12 @@ short DataOrganization::load_file(std::string& file_name){
             //gets the name of the object
             std::string object_name;
             file >> object_name;
+            if(this->exists(object_name)) return 2;
             int vertex_count;
             file >> vertex_count;
             //creates a vector for the vertices, allocating the size we already know will be
-            std::vector<std::vector<int>*>* vertices = new std::vector<std::vector<int>*>(vertex_count);
+            std::vector<std::vector<int>*>* vertices = new std::vector<std::vector<int>*>;
+            vertices->reserve(vertex_count);
             for(int i = 0; i < vertex_count; i++){
                 int x, y, z;
                 file >> x;
@@ -31,7 +34,9 @@ short DataOrganization::load_file(std::string& file_name){
                 int n;
                 file >> n;
                 if(n == -1) break;
-                std::vector<int>* face = new std::vector<int>(n);
+                if(file.eof()) return 0;
+                std::vector<int>* face = new std::vector<int>;
+                face->reserve(n);
                 for(int i = 0; i < n; i++){
                     int aux;
                     file >> aux;
@@ -41,9 +46,20 @@ short DataOrganization::load_file(std::string& file_name){
             }
             this->objects->push_back(new Object3d(object_name, vertices, faces));
         }
+        file.close();
+        return 3;
     }catch(const std::exception& e){
+        file.close();
         return 0;
     }
+}
+
+bool DataOrganization::exists(std::string& object_name){
+    std::vector<Object3d*>::iterator it = this->objects->begin();
+    for(; it != this->objects->end(); ++it){
+        if((*it)->get_name() == object_name) return true;
+    }
+    return false;
 }
 
 std::vector<Object3d*>* DataOrganization::get_objects(){

@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <list>
 
+#include "object_3d.h"
 #include "data_organization.h"
 
 void enter_command(std::string& command);
@@ -87,7 +88,7 @@ void cargar_command(std::list<std::string>* words){
     }
     std::string file_name = words->back();
     //TO DO NEXT 
-    data_org->load_file(file_name);
+    data_org->load_file (file_name);
     std::cout << "\nComando valido";
 }
 
@@ -97,7 +98,11 @@ void listado_command(std::list<std::string>* words){
         std::cout << "\nComando invalido\n" << help_map["listado"];
         return;
     }
-    //TO DO NEXT
+    std::vector<Object3d*>* objects = data_org->get_objects();
+    std::vector<Object3d*>::iterator it = objects->begin();
+    for(; it!= objects->end(); ++it){
+        std::cout << (*it)->get_name() << " contiene " << std::to_string((*it)->get_count_vertices()) << " vertices, " << std::to_string((*it)->get_count_lines()) << " aristas y " << std::to_string((*it)->get_count_faces()) << " caras";
+    }
     std::cout << "\nComando valido";;
 }
 
