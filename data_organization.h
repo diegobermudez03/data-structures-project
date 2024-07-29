@@ -5,9 +5,10 @@
 
 class DataOrganization{
     protected:
-        std::vector<Object3d>* objects = new std::vector<Object3d>;
+        std::vector<Object3d*>* objects = new std::vector<Object3d*>;
     public:
         short load_file(std::string& file_name);
+        std::vector<Object3d*>* get_objects();
         ~DataOrganization();
 };
 
