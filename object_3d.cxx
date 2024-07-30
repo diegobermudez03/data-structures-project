@@ -90,3 +90,7 @@ void Object3d::add_line(int key, int value){
 std::vector<std::deque<int>*>* Object3d::get_vertices(){
     return this->vertices;
 }
+
+std::list<std::vector<int>*>* Object3d::get_faces(){
+    return this->faces;
+}

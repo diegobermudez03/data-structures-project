@@ -85,14 +85,13 @@ std::string DataOrganization::envolvente(std::string object_name){
         std::unordered_map<std::string, Object3d*>::iterator it = this->objects->begin();
         bool first = true;
         for(; it != this->objects->end(); ++it){
-            this->get_points(it->second, x_max, x_min,  y_max, y_min, z_max, x_min, first);
+            this->get_points(it->second, x_max, x_min,  y_max, y_min, z_max, z_min, first);
             if(first) first = false;
         }
     }
     else{
         if(this->objects->find(object_name) == this->objects->end()) return "";
         Object3d* object = this->objects->find(object_name)->second;
-        int x_max, x_min, y_max, y_min, z_max, z_min;
         this->get_points(object, x_max, x_min, y_max, y_min, z_max, z_min, true);
     }
 
@@ -106,10 +105,9 @@ std::string DataOrganization::envolvente(std::string object_name){
         else y_n = y_min;
         if(i % 2 == 0) z_n = z_max;
         else z_n = z_min; 
-
-        vertex->push_front(x_n);
-        vertex->push_front(y_n);
-        vertex->push_front(z_n);
+        vertex->push_back(x_n);
+        vertex->push_back(y_n);
+        vertex->push_back(z_n);
         vertices->push_back(vertex);
     }
     std::list<std::vector<int>*>* faces = new std::list<std::vector<int>*>;
@@ -146,11 +144,12 @@ void DataOrganization::get_points(Object3d* object, int& x_max, int& x_min, int&
         int z = (*it)->at(2);
         if(first){
              x_max = x;
-             x_min = x_max;
+             x_min = x;
              y_max = y;
-             y_min = y_max;
+             y_min = y;
              z_max = z;
-             z_min = z_max;
+             z_min = z;
+             first = false;
         }else{
              if(x > x_max) x_max = x;
              if(x < x_min) x_min = x;
@@ -159,7 +158,36 @@ void DataOrganization::get_points(Object3d* object, int& x_max, int& x_min, int&
              if(z > z_max) z_max = z;
              if(z < z_min) z_min = z;
         }
+        //std::cout << "\nxmax=" << x_max << " xmin=" << x_min << " ymax=" << y_max << " ymin=" << y_min << " zmax=" << z_max << " zmin=" << z_min ;
     }
+}
+
+bool DataOrganization::guardar(std::string object_name, std::string file_name){
+    if(this->objects->find(object_name) == this->objects->end()) return false;
+    std::ofstream file(file_name + ".txt");
+    Object3d* object = this->objects->find(object_name)->second;
+    file << object->get_name() << "\n";
+    file << object->get_count_vertices() << "\n";
+    std::vector<std::deque<int>*>::iterator it = object->get_vertices()->begin();
+    for(; it != object->get_vertices()->end(); ++it){
+        std::deque<int>::iterator inside_it = (*it)->begin();
+        for(; inside_it != (*it)->end(); ++inside_it){
+            file << *inside_it << " ";
+        }
+        file << "\n";
+    }
+    std::list<std::vector<int>*>::iterator it_faces = object->get_faces()->begin();
+    for(; it_faces != object->get_faces()->end(); ++it_faces){
+        file << (*it_faces)->size() << " ";
+        std::vector<int>::iterator vertx_it = (*it_faces)->begin();
+        for(; vertx_it != (*it_faces)->end(); ++vertx_it){
+            file<< *vertx_it << " ";
+        }
+        file << "\n";
+    }
+    file << "-1";
+    file.close();
+    return true;
 }
 
 bool DataOrganization::descargar(std::string object_name){

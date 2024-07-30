@@ -156,7 +156,8 @@ void guardar_command(std::list<std::string>* words){
     std::string object_name = words->back();
     words->pop_back();
     std::string file_name = words->back();
-    //TO DO NEXT
+    if(data_org->guardar(object_name, file_name)) std::cout << "\n(Resultado exitoso) la informacion del objeto " << object_name << " ha sido guardada exitosamente en el archivo " << file_name;
+    else std::cout << "\n(Objeto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
     std::cout << "\nComando valido";
 }
 

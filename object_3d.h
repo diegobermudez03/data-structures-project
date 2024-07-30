@@ -19,6 +19,7 @@ class Object3d{
         int get_count_lines();
         int get_count_faces();
         int get_count_vertices();
+        std::list<std::vector<int>*>* get_faces();
         std::vector<std::deque<int>*>* get_vertices();
         ~Object3d();
 

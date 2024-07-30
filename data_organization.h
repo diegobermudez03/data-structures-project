@@ -13,6 +13,7 @@ class DataOrganization{
         std::vector<Object3d*>* get_objects();
         std::string envolvente(std::string object_name);
         bool descargar(std::string object_name);
+        bool guardar(std::string object_name, std::string file_name);
         ~DataOrganization();
 };
 
