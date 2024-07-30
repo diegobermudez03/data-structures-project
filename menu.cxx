@@ -120,7 +120,7 @@ void listado_command(std::list<std::string>* words){
     std::vector<Object3d*>::iterator it = objects->begin();
     //we iterate over the vector of objects and we print the info of each one
     for(; it!= objects->end(); ++it){
-        std::cout << (*it)->get_name() << " contiene " << std::to_string((*it)->get_count_vertices()) << " vertices, " << std::to_string((*it)->get_count_lines()) << " aristas y " << std::to_string((*it)->get_count_faces()) << " caras";
+        std::cout << "\n" << (*it)->get_name() << " contiene " << std::to_string((*it)->get_count_vertices()) << " vertices, " << std::to_string((*it)->get_count_lines()) << " aristas y " << std::to_string((*it)->get_count_faces()) << " caras";
     }
 }
 
@@ -129,9 +129,12 @@ void envolvente_command(std::list<std::string>* words){
         std::cout << "\nComando invalido\n" << help_map["envolvente"];
         return;
     }
-    std::string file_name = words->size() == 1 ? words->back(): "";
-    //TO DO NEXT
-    std::cout << "\nComando valido";
+    std::string object_name = words->size() == 1 ? words->back(): "";
+    std::string env_name = data_org->envolvente(object_name);
+    if(env_name.empty() && object_name.empty())     std::cout << "\n(Memoria vacia) Ningun objeto ha sido cargado en memoria";
+    else if(env_name.empty() && !object_name.empty()) std::cout << "\n(Objeto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
+    else if(object_name.empty()) std::cout << "\n(Resultado exitoso) La caja envolvente de los objetos en memoria se ha generado con el nombre " << env_name << " y se ha agregado a los objetos en memoria";
+    else std::cout << "\n(Resultado exitoso) La caja envolvente del objeto " << object_name << " se ha generado con el nombre " << env_name << " y se ha agregado a los objetos en memoria";
 }
 
 void descargar_command(std::list<std::string>* words){
@@ -139,8 +142,9 @@ void descargar_command(std::list<std::string>* words){
         std::cout << "\nComando invalido\n" << help_map["descargar"];
         return;
     }
-    std::string file_name = words->back();
-    //TO DO NEXT
+    std::string object_name = words->back();
+    if(data_org->descargar(object_name) == true) std::cout << "\n(Resultado exitoso) El objeto " << object_name << " ha sido eliminado de la memoria de trabajo";
+    else std::cout << "\n(Objeto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
     std::cout << "\nComando valido";
 }
 

@@ -1,7 +1,7 @@
 #include "object_3d.h"
 #include <vector>
 
-Object3d::Object3d(std::string& name, std::vector<std::vector<int>*>* vertices, std::list<std::vector<int>*>* faces){
+Object3d::Object3d(std::string& name, std::vector<std::deque<int>*>* vertices, std::list<std::vector<int>*>* faces){
     this->name = name;
     this->vertices = vertices;
     this->faces = faces;
@@ -42,6 +42,12 @@ Object3d::Object3d(std::string& name, std::vector<std::vector<int>*>* vertices, 
     }
 }
 
+Object3d::~Object3d(){
+    delete this->vertices;
+    delete this->faces;
+    delete this->lines;
+}
+
 std::string Object3d::get_name(){
     return this->name;
 }
@@ -79,4 +85,8 @@ void Object3d::add_line(int key, int value){
     //here we are sure that the key will exist, so we continue to insert the vertex to the set
     std::unordered_set<int>* set = (*this->lines)[key];
     set->insert(value);
+}
+
+std::vector<std::deque<int>*>* Object3d::get_vertices(){
+    return this->vertices;
 }
