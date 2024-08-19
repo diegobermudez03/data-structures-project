@@ -8,30 +8,29 @@
 
 void enter_command(std::string& command);
 
-void cargar_command(std::list<std::string>* words);
-void listado_command(std::list<std::string>* words);
-void envolvente_command(std::list<std::string>* words);
-void descargar_command(std::list<std::string>* words);
-void guardar_command(std::list<std::string>* words);
-void v_cercano_command(std::list<std::string>* words);
-void v_cercanos_caja_command(std::list<std::string>* words);
-void ruta_corta_command(std::list<std::string>* words);
-void ruta_corta_centro_command(std::list<std::string>* words);
-void ayuda_command(std::list<std::string>* words);
+void cargar_command(std::list<std::string>& words);
+void listado_command(std::list<std::string>& words);
+void envolvente_command(std::list<std::string>& words);
+void descargar_command(std::list<std::string>& words);
+void guardar_command(std::list<std::string>& words);
+void v_cercano_command(std::list<std::string>& words);
+void v_cercanos_caja_command(std::list<std::string>& words);
+void ruta_corta_command(std::list<std::string>& words);
+void ruta_corta_centro_command(std::list<std::string>& words);
+void ayuda_command(std::list<std::string>& words);
 
 void fill_help_commands();
-std::list<std::string>* split(std::string&command);
+std::list<std::string> split(std::string& command);
 int char_finder(std::string& command, char end_char, int begin_pos);
 
 
 //global variables
 std::unordered_map<std::string, std::string> help_map;
-DataOrganization* data_org;
+DataOrganization data_org;
 
 //Entry point of the program, simply prints the entry command char $ and listens for inputs
 int main(int argsn, char** args){
     fill_help_commands(); 
-    data_org = new DataOrganization;
     std::string command;
     while(true){
         std::cout << "\n\n$";   //prints terminal character
@@ -42,10 +41,10 @@ int main(int argsn, char** args){
 
 //logic redirection of commands, it redirects each command to its correspondent controller
 void enter_command(std::string& command){
-    std::list<std::string>* words = split(command); //we split the command into the words, so the command is easy to manage
-    std::string first_word = words->back(); //gets the initial command
-    words->pop_back();  //pops the command word from the list, so we are left with the remaining of the command
-    void (*command_type)(std::list<std::string>*) = nullptr;
+    std::list<std::string> words = split(command); //we split the command into the words, so the command is easy to manage
+    std::string first_word = words.back(); //gets the initial command
+    words.pop_back();  //pops the command word from the list, so we are left with the remaining of the command
+    void (*command_type)(std::list<std::string>&) = nullptr;
     //depending on the first word of the command, our function pointer will point to the indicated function
     //its made this way since all funcions receive the same parameters, so we mantain the code DRY
     if(first_word == "cargar") command_type = cargar_command;
@@ -63,13 +62,12 @@ void enter_command(std::string& command){
         std::cout << "\ncomando invalido";
     }
     if(command_type != nullptr) command_type(words);
-    delete words;   //cleaning memory
 }
 
 //controller for help command of any type, if any type was given, it shows all the commands help
-void ayuda_command(std::list<std::string>* words){
+void ayuda_command(std::list<std::string>& words){
     //if there are no words, that means that the command was only "help", so then, we print all the help commands
-    if(words->size() == 0){
+    if(words.size() == 0){
         std::unordered_map<std::string, std::string>::iterator it = help_map.begin();
         for(; it != help_map.end(); ++it){
             std::cout << "\n  " << it->first << " \n" << it->second << "\n";
@@ -77,25 +75,25 @@ void ayuda_command(std::list<std::string>* words){
         return;
     }
     //we get the word for which the help was asked
-    std::string word = words->back();
+    std::string word = words.back();
     std::string help;
     help = help_map[word];  //we retrieve the help text from the map, so we can print, if there's no entry in the map, the command simply doesn't exist
     if(help.empty()) help = "comando no existe";
     std::cout << "\n" << help;
 }
 
-void cargar_command(std::list<std::string>* words){
+void cargar_command(std::list<std::string>& words){
     //it should only be 1 word, so if there'are less or more, then it's worng
-    if(words->size() != 1){
+    if(words.size() != 1){
         std::cout << "\nComando invalido\n" << help_map["cargar"];
         return;
     }
     //we get the file_name from the command
-    std::string file_name = words->back();
+    std::string file_name = words.back();
     //this is so we can pass a variable by reference to the function, since the object name is only known when reading the file
     //is our way to get the object's name from the function, so we can print it if needed
     std::string object_name;
-    short code = data_org->load_file(file_name, object_name);
+    short code = data_org.load_file(file_name, object_name);
     switch(code){
         case 0: std::cout << "\n(Archivo vacio o incompleto) El archivo " << file_name << " no contiene un objeto 3D valido";break;
         case 1: std::cout << "\n(Archivo no existe) El archivo " << file_name << " no existe o es ilegible";break;
@@ -104,73 +102,73 @@ void cargar_command(std::list<std::string>* words){
     }
 }
 
-void listado_command(std::list<std::string>* words){
+void listado_command(std::list<std::string>& words){
     //there shouldn't be any words at all, so if there are, the command it's wrong
-    if(words->size() != 0){
+    if(words.size() != 0){
         std::cout << "\nComando invalido\n" << help_map["listado"];
         return;
     }
     //we get the objects stored in our DataOrg object
-    std::vector<Object3d*>* objects = data_org->get_objects();
-    if(objects->empty()){
+    std::vector<Object3d*> objects = data_org.get_objects();
+    if(objects.empty()){
         std::cout <<"\n(Memoria vacia) Ningun objeto ha sido cargado en memoria";
         return;
     }
-    std::cout << "\n(Resultado exitoso) Hay " << objects->size() << " objetos en memoria:\n";
-    std::vector<Object3d*>::iterator it = objects->begin();
+    std::cout << "\n(Resultado exitoso) Hay " << objects.size() << " objetos en memoria:\n";
+    std::vector<Object3d*>::iterator it = objects.begin();
     //we iterate over the vector of objects and we print the info of each one
-    for(; it!= objects->end(); ++it){
+    for(; it!= objects.end(); ++it){
         std::cout << "\n" << (*it)->get_name() << " contiene " << std::to_string((*it)->get_count_vertices()) << " vertices, " << std::to_string((*it)->get_count_lines()) << " aristas y " << std::to_string((*it)->get_count_faces()) << " caras";
     }
 }
 
-void envolvente_command(std::list<std::string>* words){
-    if(words->size() > 1){
+void envolvente_command(std::list<std::string>& words){
+    if(words.size() > 1){
         std::cout << "\nComando invalido\n" << help_map["envolvente"];
         return;
     }
-    std::string object_name = words->size() == 1 ? words->back(): "";
-    std::string env_name = data_org->envolvente(object_name);
+    std::string object_name = words.size() == 1 ? words.back(): "";
+    std::string env_name = data_org.envolvente(object_name);
     if(env_name.empty() && object_name.empty())     std::cout << "\n(Memoria vacia) Ningun objeto ha sido cargado en memoria";
     else if(env_name.empty() && !object_name.empty()) std::cout << "\n(Objeto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
     else if(object_name.empty()) std::cout << "\n(Resultado exitoso) La caja envolvente de los objetos en memoria se ha generado con el nombre " << env_name << " y se ha agregado a los objetos en memoria";
     else std::cout << "\n(Resultado exitoso) La caja envolvente del objeto " << object_name << " se ha generado con el nombre " << env_name << " y se ha agregado a los objetos en memoria";
 }
 
-void descargar_command(std::list<std::string>* words){
-    if(words->size() != 1){
+void descargar_command(std::list<std::string>& words){
+    if(words.size() != 1){
         std::cout << "\nComando invalido\n" << help_map["descargar"];
         return;
     }
-    std::string object_name = words->back();
-    if(data_org->descargar(object_name) == true) std::cout << "\n(Resultado exitoso) El objeto " << object_name << " ha sido eliminado de la memoria de trabajo";
+    std::string object_name = words.back();
+    if(data_org.descargar(object_name) == true) std::cout << "\n(Resultado exitoso) El objeto " << object_name << " ha sido eliminado de la memoria de trabajo";
     else std::cout << "\n(Objeto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
     std::cout << "\nComando valido";
 }
 
-void guardar_command(std::list<std::string>* words){
-    if(words->size() != 2){
+void guardar_command(std::list<std::string>& words){
+    if(words.size() != 2){
         std::cout << "\nComando invalido\n" << help_map["guardar"];
         return;
     }
-    std::string object_name = words->back();
-    words->pop_back();
-    std::string file_name = words->back();
-    if(data_org->guardar(object_name, file_name)) std::cout << "\n(Resultado exitoso) la informacion del objeto " << object_name << " ha sido guardada exitosamente en el archivo " << file_name;
+    std::string object_name = words.back();
+    words.pop_back();
+    std::string file_name = words.back();
+    if(data_org.guardar(object_name, file_name)) std::cout << "\n(Resultado exitoso) la informacion del objeto " << object_name << " ha sido guardada exitosamente en el archivo " << file_name;
     else std::cout << "\n(Objeto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
     std::cout << "\nComando valido";
 }
 
-void v_cercano_command(std::list<std::string>* words){
-    if(words->size() == 4 || words->size() == 3){
+void v_cercano_command(std::list<std::string>& words){
+    if(words.size() == 4 || words.size() == 3){
         int px, py, pz;
         try{
-            px = std::stoi(words->back());
-            words->pop_back();
-            py = std::stoi(words->back());
-            words->pop_back();
-            pz = std::stoi(words->back());
-            words->pop_back();
+            px = std::stoi(words.back());
+            words.pop_back();
+            py = std::stoi(words.back());
+            words.pop_back();
+            pz = std::stoi(words.back());
+            words.pop_back();
             //TO DO NEXT
             std::cout << "\nComando valido";
             return;
@@ -180,8 +178,8 @@ void v_cercano_command(std::list<std::string>* words){
     return;
 }
 
-void v_cercanos_caja_command(std::list<std::string>* words){
-    if(words->size() != 1){
+void v_cercanos_caja_command(std::list<std::string>& words){
+    if(words.size() != 1){
         std::cout << "\nComando invalido\n" << help_map["v_cercanos_caja"];
         return;
     }
@@ -189,14 +187,14 @@ void v_cercanos_caja_command(std::list<std::string>* words){
     std::cout << "\nComando valido";
 }
 
-void ruta_corta_command(std::list<std::string>* words){
-    if(words->size() == 3){
+void ruta_corta_command(std::list<std::string>& words){
+    if(words.size() == 3){
         int i1, i2;
         try{
-            i1 = std::stoi(words->back());
-            words->pop_back();
-            i2 = std::stoi(words->back());
-            words->pop_back();
+            i1 = std::stoi(words.back());
+            words.pop_back();
+            i2 = std::stoi(words.back());
+            words.pop_back();
             //TO DO NEXT
             std::cout << "\nComando valido";
             return;
@@ -206,14 +204,14 @@ void ruta_corta_command(std::list<std::string>* words){
     return;
 }
 
-void ruta_corta_centro_command(std::list<std::string>* words){
-    if(words->size() == 2){
+void ruta_corta_centro_command(std::list<std::string>& words){
+    if(words.size() == 2){
         int i1;
         try{
-            i1 = std::stoi(words->back());
-            words->pop_back();
+            i1 = std::stoi(words.back());
+            words.pop_back();
         }catch(const std::exception& e){}
-        std::string object_name = words->back();
+        std::string object_name = words.back();
         //TO DO NEXT
         std::cout << "\nComando valido";
         return;
@@ -248,8 +246,8 @@ int char_finder(std::string& command, char end_char, int begin_pos){
 }
 
 //this function is our own split implementation, so we get a list of words, that we can easily manage to understand the exact command
-std::list<std::string>* split(std::string&command){
-    std::list<std::string>* words = new std::list<std::string>;
+std::list<std::string> split(std::string& command){
+    std::list<std::string> words;
     int starting = 0;
     int ending = 0;
     while(true){
@@ -258,7 +256,7 @@ std::list<std::string>* split(std::string&command){
             //index of the previous word +1, this is how we divide the sentence into words
             ending = char_finder(command, ' ', starting);
             std::string word = command.substr(starting, ending-starting);
-            if(!word.empty()) words->push_front(word);
+            if(!word.empty()) words.push_front(word);
             starting = ending+1;
         }catch(const std::exception& e){
             break;
