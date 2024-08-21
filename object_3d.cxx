@@ -5,7 +5,7 @@ Object3d::Object3d(){}
 
 Object3d::~Object3d(){}
 
-void Object3d::assignAttr(std::string& name, std::vector<std::deque<int>>& vertices, std::list<std::vector<int>>& faces){
+void Object3d::assignAttr(std::string& name, std::vector<std::vector<int>>& vertices, std::list<std::vector<int>>& faces){
     this->name = name;
     this->vertices = vertices;
     this->faces = faces;
@@ -80,7 +80,7 @@ void Object3d::add_line(int key, int value){
     set->insert(value);
 }
 
-std::vector<std::deque<int>> Object3d::get_vertices(){
+std::vector<std::vector<int>> Object3d::get_vertices(){
     return this->vertices;
 }
 

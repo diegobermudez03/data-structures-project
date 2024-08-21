@@ -2,10 +2,11 @@
 #include <fstream>
 #include <vector>
 #include <deque>
+#include <iostream>
 
 DataOrganization::~DataOrganization(){}
 
-short DataOrganization::load_file(std::string& file_name, std::string& object_name){
+short DataOrganization::load_file(std::string& file_name, std::list<std::vector<std::string>*>& result){
     //codes :
     //  0   Archivo vacio o incompleto
     //  1   Archivo no existe
@@ -16,13 +17,26 @@ short DataOrganization::load_file(std::string& file_name, std::string& object_na
     try{
         //we will iterate until we reach the end of the file
         while(!file.eof()){
-            //gets the name of the object
-            file >> object_name;
-            if(this->objects.find(object_name) != this->objects.end()) return 2; //if the object already exists, we return the code 2
+            //creates the object info for this one, and pushes the pointer to the result list
+            std::vector<std::string>* object_info = new std::vector<std::string>;
+            object_info->resize(2);
+            result.push_back(object_info);
+
+
+            file >> (*object_info)[0];
+            if(this->objects.find((*object_info)[0]) != this->objects.end()) {
+                //if the object already exists we set the code 2
+                (*object_info)[1] = "2"; 
+                std::string line;
+                //para saltar todo lo de este objeto
+                while(line != "-1") file >> line;
+                continue;   //para continuar con el siguiente objeto
+                
+            }
             int vertex_count;
             file >> vertex_count;
             //creates a vector for the vertices, reserving the size we already know will be
-            std::vector<std::deque<int>> vertices;
+            std::vector<std::vector<int>> vertices;
             vertices.resize(vertex_count);
             //we iterate over the amount of vertex we already know will be
             for(int i = 0; i < vertex_count; i++){
@@ -57,7 +71,8 @@ short DataOrganization::load_file(std::string& file_name, std::string& object_na
                 faces.push_back(face);
             }
             //once we reach this part, we have read all the file succesfully, so we push  a new 3D object into our Objects list
-            (this->objects)[object_name].assignAttr(object_name, vertices, faces);
+            (this->objects)[(*object_info)[0]].assignAttr((*object_info)[0], vertices, faces);
+            (*object_info)[1] = "3";
         }
         file.close();
         return 3;
@@ -99,9 +114,9 @@ std::string DataOrganization::envolvente(std::string& object_name){
     }
 
     //creating the 8 vertices with the max and min x, y, z coordinates, this is a formula documented on the report
-    std::vector<std::deque<int>> vertices;
+    std::vector<std::vector<int>> vertices;
     for(int i = 0; i < 8; i++){
-        std::deque<int> vertex;
+        std::vector<int> vertex;
         int x_n, y_n, z_n;
         if(i < 4) x_n = x_max;
         else x_n = x_min;
@@ -143,8 +158,8 @@ std::string DataOrganization::envolvente(std::string& object_name){
 
 void DataOrganization::get_points(Object3d& object, int& x_max, int& x_min, int& y_max, int& y_min, int& z_max, int& z_min, bool first){
     //this simply iterates over the vertices of the object and checking max and min values for each coordinate
-    std::vector<std::deque<int>> vertices = object.get_vertices();
-    std::vector<std::deque<int>>::iterator it = vertices.begin();
+    std::vector<std::vector<int>> vertices = object.get_vertices();
+    std::vector<std::vector<int>>::iterator it = vertices.begin();
     for(; it != vertices.end(); ++it){
         int x = it->at(0);
         int y = it->at(1);
@@ -173,13 +188,15 @@ bool DataOrganization::guardar(std::string& object_name, std::string& file_name)
     if(this->objects.find(object_name) == this->objects.end()) return false;    //checking if the object exists
     std::ofstream file(file_name + ".txt");
     Object3d object = this->objects.find(object_name)->second;
+    std::cout << "\nFlag: " << object.get_name();
     file << object.get_name() << "\n";
+    std::cout << "\nFlag: " << object.get_count_vertices();
     file << object.get_count_vertices() << "\n";
 
     //iterating over the objects vertices and writing each one in the format
-    std::vector<std::deque<int>>::iterator it = object.get_vertices().begin();
+    std::vector<std::vector<int>>::iterator it = object.get_vertices().begin();
     for(; it != object.get_vertices().end(); ++it){
-        std::deque<int>::iterator inside_it = it->begin();
+        std::vector<int>::iterator inside_it = it->begin();
         //iterating over x, y, z
         for(; inside_it != it->end(); ++inside_it){
             file << *inside_it << " ";

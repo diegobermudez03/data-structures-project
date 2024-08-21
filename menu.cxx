@@ -93,12 +93,16 @@ void cargar_command(std::list<std::string>& words){
     //this is so we can pass a variable by reference to the function, since the object name is only known when reading the file
     //is our way to get the object's name from the function, so we can print it if needed
     std::string object_name;
-    short code = data_org.load_file(file_name, object_name);
-    switch(code){
-        case 0: std::cout << "\n(Archivo vacio o incompleto) El archivo " << file_name << " no contiene un objeto 3D valido";break;
-        case 1: std::cout << "\n(Archivo no existe) El archivo " << file_name << " no existe o es ilegible";break;
-        case 2: std::cout << "\n(Objeto ya existe) El objeto " << object_name << " ya ha sido cargado en memoria";break;
-        case 3: std::cout << "\n(Resultado exitoso) El objeto " << object_name << " ha sido cargado exitosamente desde el archivo";break;
+    std::list<std::vector<std::string>*> result;
+    short code = data_org.load_file(file_name, result);
+    if(code == 0) std::cout << "\n(Archivo vacio o incompleto) El archivo " << file_name << " no contiene un objeto 3D valido";
+    else if(code == 1)  std::cout << "\n(Archivo no existe) El archivo " << file_name << " no existe o es ilegible";
+    if(!result.empty()){
+        std::list<std::vector<std::string>*>::iterator it = result.begin();
+        for(; it != result.end(); ++it){
+            if((**it)[1] == "2")  std::cout << "\n(Objeto ya existe) El objeto " << (**it)[0] << " ya ha sido cargado en memoria";
+            else if((**it)[1] == "3") std::cout << "\n(Resultado exitoso) El objeto " << (**it)[0] << " ha sido cargado exitosamente desde el archivo";
+        }
     }
 }
 
