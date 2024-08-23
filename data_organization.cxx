@@ -24,9 +24,9 @@ short DataOrganization::load_file(std::string& file_name, std::list<std::vector<
                 //if the object already exists we set the code 2
                 (*object_info)[1] = "2"; 
                 std::string line;
-                //para saltar todo lo de este objeto
+                //to avoid all this object and go straight to the next one
                 while(line != "-1") file >> line;
-                continue;   //para continuar con el siguiente objeto
+                continue;   //to continue to the next iteration
 
             }
             int vertex_count;
@@ -59,7 +59,7 @@ short DataOrganization::load_file(std::string& file_name, std::list<std::vector<
                 if(file.eof()) return 0;
                 //we create a vector for each face, reserving the n posotions we already know there are (number of vertex)
                 std::vector<int>* face = new std::vector<int>;
-                face->reserve(n);
+                face->resize(n);
                 for(int i = 0; i < n; i++){
                     //we simply iterate over those vertex and we push them into the face
                     int aux;
@@ -71,6 +71,7 @@ short DataOrganization::load_file(std::string& file_name, std::list<std::vector<
             }
             //once we reach this part, we have read all the file succesfully, so we push  a new 3D object into our Objects list
             (*this->objects)[(*object_info)[0]] = new Object3d((*object_info)[0], vertices, faces);
+            //we add the success result to the list
              (*object_info)[1] = "3";
         }
         file.close();
@@ -82,6 +83,8 @@ short DataOrganization::load_file(std::string& file_name, std::list<std::vector<
 }
 
 
+//this function iterate over the map of objects, in order to add each object (a pointer to it), in a vector
+//which it will return so that then the menu can iterate easily over the vector and print the objects info
 std::vector<Object3d*>* DataOrganization::get_objects(){
     std::vector<Object3d*>* objects = new std::vector<Object3d*>;
     objects->resize(this->objects->size());
@@ -92,23 +95,38 @@ std::vector<Object3d*>* DataOrganization::get_objects(){
     return objects;
 }
 
+
 std::string DataOrganization::envolvente(std::string object_name){
+    //these variables will keep the maximum and minimum values for each axis
     int x_max, x_min, y_max, y_min, z_max, z_min;
+    //if object_name is empty, then its the global envolvente
     if(object_name.empty()){
+        if(this->objects->empty()) return ""; //if there are no objects stored then we return empty string which the menu will recognize as no objects
         std::unordered_map<std::string, Object3d*>::iterator it = this->objects->begin();
         bool first = true;
+        //we iterate over the objects, and for each one we call the function get points
+        //that function wil compare the X, Y and Z positions to the parameters passed, and replace them
+        //if it finds new maximum or minimum, the maximum and minimum variables are passed by reference
         for(; it != this->objects->end(); ++it){
             this->get_points(it->second, x_max, x_min,  y_max, y_min, z_max, z_min, first);
             if(first) first = false;
         }
     }
     else{
-        if(this->objects->find(object_name) == this->objects->end()) return "";
+        //if object name wasn't empty, then we only need to find the maximum and minimum
+        //values for that single object
+        if(this->objects->find(object_name) == this->objects->end()) return ""; //if the object wasn't stored then return empty string
         Object3d* object = this->objects->find(object_name)->second;
         this->get_points(object, x_max, x_min, y_max, y_min, z_max, z_min, true);
     }
 
     std::vector<std::vector<int>*>* vertices = new std::vector<std::vector<int>*>;
+    //this loop iterates 8 time (since the envolvente box will have 8 vertices)
+    //and in each iteration it creates a new vertex of the box, it follows a pattern of 
+    // xmax xmax xmax xmax xmin xmin xmin xmin
+    // ymax ymax ymin ymin ymax ymax ymin ymin
+    // zmax zmin zmax zmin zmax zmin zmax zmin
+    //this way it gets all combinations which represent the location of the 8 vertices
     for(int i = 0; i < 8; i++){
         std::vector<int>* vertex = new std::vector<int>;
         int x_n, y_n, z_n;
@@ -123,6 +141,9 @@ std::string DataOrganization::envolvente(std::string object_name){
         vertex->push_back(z_n);
         vertices->push_back(vertex);
     }
+    //taking into account the order of insertion of the vertices above, and the position of each one
+    //we simply iterate now 6 times to create the 6 faces, on each case we now which indexes we need to 
+    //form each face
     std::list<std::vector<int>*>* faces = new std::list<std::vector<int>*>;
     for(int i = 0; i < 6;i++){
         int i1, i2, i3, i4;
@@ -142,12 +163,20 @@ std::string DataOrganization::envolvente(std::string object_name){
 
         faces->push_back(face);
     }
+    //if object name was empty we know that the object we created was the env_global
     std::string new_object_name = object_name.empty() ? "env_global": "env_" + object_name;
+    //if for instance, we had already an env_global before, then we added new objects, then we 
+    //need to replace that object, so we check if it already existed and we delete it if so
+    if(this->objects->find(new_object_name) != this->objects->end()){
+        delete (*this->objects)[new_object_name];
+    }
     (*this->objects)[new_object_name] = new Object3d(new_object_name, vertices, faces);
     return new_object_name;
 
 }
 
+//this function simply iterates over the vertices of the object passed, and simply makes the maximum and minimum comparison
+//so at the end those variables will have the value of the maximum and minimum values of each axis
 void DataOrganization::get_points(Object3d* object, int& x_max, int& x_min, int& y_max, int& y_min, int& z_max, int& z_min, bool first){
     std::vector<std::vector<int>*>* vertices = object->get_vertices();
     std::vector<std::vector<int>*>::iterator it = vertices->begin();
@@ -177,10 +206,15 @@ void DataOrganization::get_points(Object3d* object, int& x_max, int& x_min, int&
 
 bool DataOrganization::guardar(std::string object_name, std::string file_name){
     if(this->objects->find(object_name) == this->objects->end()) return false;
+    //we create the file
     std::ofstream file(file_name + ".txt");
     Object3d* object = this->objects->find(object_name)->second;
+    //we write the object's name and vertices count
     file << object->get_name() << "\n";
     file << object->get_count_vertices() << "\n";
+
+    //we iterate over the vertices of the object and for each vertex we write the 3 values in the 
+    //inside vector, which are X, Y  and Z
     std::vector<std::vector<int>*>::iterator it = object->get_vertices()->begin();
     for(; it != object->get_vertices()->end(); ++it){
         std::vector<int>::iterator inside_it = (*it)->begin();
@@ -189,6 +223,9 @@ bool DataOrganization::guardar(std::string object_name, std::string file_name){
         }
         file << "\n";
     }
+    //now we iterate over the faces of the object, for each face we write the size of the inside vector
+    //which means the number of vertices, and then we iterate over that inside vector in order
+    //to write each vertice index
     std::list<std::vector<int>*>::iterator it_faces = object->get_faces()->begin();
     for(; it_faces != object->get_faces()->end(); ++it_faces){
         file << (*it_faces)->size() << " ";
@@ -203,10 +240,18 @@ bool DataOrganization::guardar(std::string object_name, std::string file_name){
     return true;
 }
 
+//this function simply checks if the object existed and if it does, then it deletes it from the map and from memory
 bool DataOrganization::descargar(std::string object_name){
     if(this->objects->find(object_name) == this->objects->end()) return false;
     Object3d* object = (this->objects->find(object_name))->second;
     this->objects->erase(object_name);
     delete object;
     return true;
+}
+
+//destructor for DataOrganization, it deletes all the objects and then the map
+DataOrganization::~DataOrganization(){
+    std::unordered_map<std::string, Object3d*>::iterator it = this->objects->begin();
+    for(;it != this->objects->begin(); ++it) delete it->second;
+    delete this->objects;
 }

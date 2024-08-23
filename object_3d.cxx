@@ -1,5 +1,6 @@
 #include "object_3d.h"
 #include <vector>
+#include <iostream>
 
 Object3d::Object3d(std::string& name, std::vector<std::vector<int>*>* vertices, std::list<std::vector<int>*>* faces){
     this->name = name;
@@ -43,9 +44,29 @@ Object3d::Object3d(std::string& name, std::vector<std::vector<int>*>* vertices, 
 }
 
 Object3d::~Object3d(){
-    delete this->vertices;
-    delete this->faces;
-    delete this->lines;
+    //we delete the memory
+    if (vertices != nullptr) {
+        //if vertices isn't null then we iterate over the vertices and delete the inside vectors
+        //then we delete the vector of vectors
+        std::vector<std::vector<int>*>::iterator it = this->vertices->begin();
+        for (; it != this->vertices->end(); ++it) delete *it;
+        delete this->vertices;
+    }
+
+    if (faces != nullptr) {
+        //we iterate over the list of vectors and we delete the vectors inside, then we delete the list
+        std::list<std::vector<int>*>::iterator it = this->faces->begin();
+        for (; it != this->faces->end(); ++it) delete *it;
+        delete this->faces;
+    }
+    if (lines != nullptr) {
+        //we iterate over the map and we delete the sets inside it, then we delete the map
+        std::unordered_map<int, std::unordered_set<int>*>::iterator it = this->lines->begin();
+        for (; it != this->lines->end(); ++it) {
+               delete it->second;
+         }
+        delete this->lines;
+    }
 }
 
 std::string Object3d::get_name(){
@@ -64,15 +85,7 @@ int Object3d::get_count_faces(){
 int Object3d::get_count_lines(){
     std::unordered_map<int, std::unordered_set<int>*>::iterator it = this->lines->begin();
     int counter = 0;
-    for(; it != this->lines->end(); ++it){
-        counter += it->second->size();
-        /*std::cout << "\n Vertex " << it->first << " connects with : ";
-        std::unordered_set<int>::iterator it2 = it->second->begin();
-        for(;it2 != it->second->end(); ++it2){
-            std::cout << " ** " << *it2;
-        }
-        std::cout << "\n";*/
-    }
+    for(; it != this->lines->end(); ++it) counter += it->second->size();
     return counter;
 }
 

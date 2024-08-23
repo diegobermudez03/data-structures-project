@@ -58,7 +58,10 @@ void enter_command(std::string& command){
     else if(first_word == "ruta_corta") command_type = ruta_corta_command;
     else if(first_word == "ruta_corta_centro") command_type = ruta_corta_centro_command;
     else if(first_word == "ayuda") command_type = ayuda_command;
-    else if(first_word == "salir") exit(0);
+    else if(first_word == "salir") {
+        delete data_org;
+        exit(0);
+    }
     else{
         std::cout << "\ncomando invalido";
     }
@@ -92,15 +95,16 @@ void cargar_command(std::list<std::string>* words){
     }
     //we get the file_name from the command
     std::string file_name = words->back();
-    //this is so we can pass a variable by reference to the function, since the object name is only known when reading the file
-    //is our way to get the object's name from the function, so we can print it if needed
-    std::string object_name;
+    //this list we create will contain a vector, which will only have 2 items inside, is used so 
+    //that we can pass it by reference to the function, the function will read the objects , and if there
+    // are many objects in a single file, then it writes the result of each one on this list
     std::list<std::vector<std::string>*> result;
     short code = data_org->load_file(file_name, result);
     if(code == 0) std::cout << "\n(Archivo vacio o incompleto) El archivo " << file_name << " no contiene un objeto 3D valido";
     else if(code == 1)  std::cout << "\n(Archivo no existe) El archivo " << file_name << " no existe o es ilegible";
     if(!result.empty()){
         std::list<std::vector<std::string>*>::iterator it = result.begin();
+        //if we got responses from objects, we iterate over them and print the output of each object
         for(; it != result.end(); ++it){
             if((**it)[1] == "2")  std::cout << "\n(Objeto ya existe) El objeto " << (**it)[0] << " ya ha sido cargado en memoria";
             else if((**it)[1] == "3") std::cout << "\n(Resultado exitoso) El objeto " << (**it)[0] << " ha sido cargado exitosamente desde el archivo";
@@ -149,7 +153,6 @@ void descargar_command(std::list<std::string>* words){
     std::string object_name = words->back();
     if(data_org->descargar(object_name) == true) std::cout << "\n(Resultado exitoso) El objeto " << object_name << " ha sido eliminado de la memoria de trabajo";
     else std::cout << "\n(Objeto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
-    std::cout << "\nComando valido";
 }
 
 void guardar_command(std::list<std::string>* words){
@@ -162,7 +165,6 @@ void guardar_command(std::list<std::string>* words){
     std::string file_name = words->back();
     if(data_org->guardar(object_name, file_name)) std::cout << "\n(Resultado exitoso) la informacion del objeto " << object_name << " ha sido guardada exitosamente en el archivo " << file_name;
     else std::cout << "\n(Objeto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
-    std::cout << "\nComando valido";
 }
 
 void v_cercano_command(std::list<std::string>* words){
@@ -228,16 +230,16 @@ void ruta_corta_centro_command(std::list<std::string>* words){
 
 //function called at the very beginning of the program, it fills a hashmap with all the possible help commands and its correspondent help description
 void fill_help_commands(){
-    help_map["cargar"] = "  cargar 'nombre_archivo'\n    carga el objeto a memoria";
-    help_map["listado"] = "  listado\n    lista los objetos cargados en memoria";
-    help_map["envolvente"] = "  envolvente\n    caja envolvente de todos los objetos\n  envolvente 'nombre_objeto'\n    calcula la caja envolvente del objeto";
-    help_map["descargar"] = " descargar 'nombre_objeto'\n    elimina el objeto de memoria";
-    help_map["guardar"] = "  guardar 'nombre_objeto' 'nombre_archivo'\n    exporta a un archivo de texto la informacion del objeto";
-    help_map["salir"] = "  salir\n    termina la ejecucion del programa de forma segura";
-    help_map["v_cercano"] = "  v_cercano 'px py pz'\n    'identifica, entre todos los objetos, el vertice mas cercano al punto indicado\n  v_cercano 'px py pz nombre_objeto'\n    identifica el vertice del objeto mas cercano al punto indicado";
-    help_map["v_cercanos_caja"] = "  v_cercanos_caja 'nombre_objeto'\n    identifica los vertices del objeto mas cercanos";
-    help_map["ruta_corta"] = "  ruta-corta 'i1 i2 nombre_objeto'\n    la ruta mas corta que conexta los vertices i1 y i2 del objeto";
-    help_map["ruta_corta_centro"] = "  ruta_corta_centro 'i1 nombre_objeto'\n    identifica los indices de los vertices que conforman la ruta mas corta entre vertice dado y el centro del objeto";
+    help_map["cargar"] = "  USO: cargar <nombre_archivo>\n    carga el objeto a memoria";
+    help_map["listado"] = "  USO: listado\n    lista los objetos cargados en memoria";
+    help_map["envolvente"] = "  USO: envolvente\n    genera la caja envolvente de todos los objetos\n  USO: envolvente <nombre_objeto>\n    genera la caja envolvente del objeto indicado";
+    help_map["descargar"] = " USO: descargar <nombre_objeto>\n    elimina el objeto de memoria";
+    help_map["guardar"] = "  USO: guardar <nombre_objeto> <nombre_archivo>\n    exporta a un archivo de texto la informacion del objeto indicado";
+    help_map["salir"] = "  USO: salir\n    termina la ejecucion del programa de forma segura";
+    help_map["v_cercano"] = "  USO: v_cercano <px> <py> <pz>\n    identifica, entre todos los objetos, el vertice mas cercano al punto indicado\n  USO: v_cercano <px> <py> <pz> <nombre_objeto>\n    identifica el vertice del objeto mas cercano al punto indicado";
+    help_map["v_cercanos_caja"] = "  USO: v_cercanos_caja <nombre_objeto>\n    identifica los vertices del objeto mas cercanos a la caja envolvente del mismo";
+    help_map["ruta_corta"] = "  USO: ruta-corta <i1> <i2> <nombre_objeto>\n    la ruta mas corta que conexta los vertices i1 y i2 del objeto";
+    help_map["ruta_corta_centro"] = "  USO: ruta_corta_centro <i1 nombre_objeto>\n    identifica los indices de los vertices que conforman la ruta mas corta entre vertice dado y el centro del objeto";
 }
 
 //inside function, used to "split" the commands and get the first word, second word, etc
