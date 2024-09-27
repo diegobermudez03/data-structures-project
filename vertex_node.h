@@ -32,11 +32,14 @@ class VertexNode{
         std::vector<VertexNode*>* sons;
         std::vector<float>* vertex; //x, y, z
         std::string object_name;
+        int index;
+        int getPosition(float x1, float y1, float z1, float x2, float y2, float z2);
     public:
-        VertexNode(float x, float y, float z);
+        VertexNode(std::vector<float>* vertex, int index, std::string object_name);
         ~VertexNode();
         std::vector<float>* getVertex();
         void addSon(VertexNode* node);
+        VertexNode* searchNearest(float x, float y, float z);
 };
 
 

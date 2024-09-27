@@ -8,7 +8,8 @@ class VertexTree{
         VertexNode* root;
     public:
         VertexTree();
-        void addSon(VertexNode* node);
+        void addSon(std::vector<float>* vertex, int index, std::string object_name);
+        VertexNode* searchNearest(float x, float y, float z);
 };
 
 
