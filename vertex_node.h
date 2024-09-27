@@ -29,12 +29,13 @@
 
 class VertexNode{
     protected:
-        std::vector<VertexNode*> sons;
+        std::vector<VertexNode*>* sons;
         std::vector<float>* vertex; //x, y, z
         std::string object_name;
     public:
-        VertexNode();
+        VertexNode(float x, float y, float z);
         ~VertexNode();
+        std::vector<float>* getVertex();
         void addSon(VertexNode* node);
 };
 
