@@ -13,13 +13,22 @@ short DataOrganization::load_file(std::string& file_name, std::list<std::vector<
     if(!file.is_open()) return 1;   //if there's no file, then  we return code 1
     try{
         //we will iterate until we reach the end of the file
-        while(!file.eof()){
-
+        while(!file.eof())
+        {
+            std::string object_name;
+            bool found = false;
+            while(!file.eof() && !found){
+                file >> object_name;
+                if(!object_name.empty()){
+                    found = true;
+                }
+            }
+            if(!found) break;
             std::vector<std::string>* object_info = new std::vector<std::string>;
             object_info->resize(2);
             result.push_back(object_info);
             //gets the name of the object
-            file >> (*object_info)[0];
+            (*object_info)[0] = object_name;
             if(this->objects->find((*object_info)[0]) != this->objects->end()) {
                 //if the object already exists we set the code 2
                 (*object_info)[1] = "2"; 
@@ -32,7 +41,7 @@ short DataOrganization::load_file(std::string& file_name, std::list<std::vector<
             int vertex_count;
             file >> vertex_count;
             //creates a vector for the vertices, reserving the size we already know will be
-            std::vector<std::vector<int>*>* vertices = new std::vector<std::vector<int>*>;
+            std::vector<std::vector<float>*>* vertices = new std::vector<std::vector<float>*>;
             vertices->resize(vertex_count);
             //we iterate over the amount of vertex we already know will be
             for(int i = 0; i < vertex_count; i++){
@@ -43,7 +52,7 @@ short DataOrganization::load_file(std::string& file_name, std::list<std::vector<
                 file >> y;
                 file >> z;
                 //creates a vector with a size of 3, it allocates the 3 axis of each vertex
-                std::vector<int>* vertex = new std::vector<int>;
+                std::vector<float>* vertex = new std::vector<float>;
                 vertex->push_back(x);
                 vertex->push_back(y);
                 vertex->push_back(z);
@@ -120,7 +129,7 @@ std::string DataOrganization::envolvente(std::string object_name){
         this->get_points(object, x_max, x_min, y_max, y_min, z_max, z_min, true);
     }
 
-    std::vector<std::vector<int>*>* vertices = new std::vector<std::vector<int>*>;
+    std::vector<std::vector<float>*>* vertices = new std::vector<std::vector<float>*>;
     //this loop iterates 8 time (since the envolvente box will have 8 vertices)
     //and in each iteration it creates a new vertex of the box, it follows a pattern of 
     // xmax xmax xmax xmax xmin xmin xmin xmin
@@ -128,7 +137,7 @@ std::string DataOrganization::envolvente(std::string object_name){
     // zmax zmin zmax zmin zmax zmin zmax zmin
     //this way it gets all combinations which represent the location of the 8 vertices
     for(int i = 0; i < 8; i++){
-        std::vector<int>* vertex = new std::vector<int>;
+        std::vector<float>* vertex = new std::vector<float>;
         int x_n, y_n, z_n;
         if(i < 4) x_n = x_max;
         else x_n = x_min;
@@ -178,8 +187,8 @@ std::string DataOrganization::envolvente(std::string object_name){
 //this function simply iterates over the vertices of the object passed, and simply makes the maximum and minimum comparison
 //so at the end those variables will have the value of the maximum and minimum values of each axis
 void DataOrganization::get_points(Object3d* object, int& x_max, int& x_min, int& y_max, int& y_min, int& z_max, int& z_min, bool first){
-    std::vector<std::vector<int>*>* vertices = object->get_vertices();
-    std::vector<std::vector<int>*>::iterator it = vertices->begin();
+    std::vector<std::vector<float>*>* vertices = object->get_vertices();
+    std::vector<std::vector<float>*>::iterator it = vertices->begin();
     for(; it != vertices->end(); ++it){
         int x = (*it)->at(0);
         int y = (*it)->at(1);
@@ -215,9 +224,9 @@ bool DataOrganization::guardar(std::string object_name, std::string file_name){
 
     //we iterate over the vertices of the object and for each vertex we write the 3 values in the 
     //inside vector, which are X, Y  and Z
-    std::vector<std::vector<int>*>::iterator it = object->get_vertices()->begin();
+    std::vector<std::vector<float>*>::iterator it = object->get_vertices()->begin();
     for(; it != object->get_vertices()->end(); ++it){
-        std::vector<int>::iterator inside_it = (*it)->begin();
+        std::vector<float>::iterator inside_it = (*it)->begin();
         for(; inside_it != (*it)->end(); ++inside_it){
             file << *inside_it << " ";
         }

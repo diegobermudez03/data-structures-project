@@ -2,7 +2,7 @@
 #include <vector>
 #include <iostream>
 
-Object3d::Object3d(std::string& name, std::vector<std::vector<int>*>* vertices, std::list<std::vector<int>*>* faces){
+Object3d::Object3d(std::string& name, std::vector<std::vector<float>*>* vertices, std::list<std::vector<int>*>* faces){
     this->name = name;
     this->vertices = vertices;
     this->faces = faces;
@@ -48,7 +48,7 @@ Object3d::~Object3d(){
     if (vertices != nullptr) {
         //if vertices isn't null then we iterate over the vertices and delete the inside vectors
         //then we delete the vector of vectors
-        std::vector<std::vector<int>*>::iterator it = this->vertices->begin();
+        std::vector<std::vector<float>*>::iterator it = this->vertices->begin();
         for (; it != this->vertices->end(); ++it) delete *it;
         delete this->vertices;
     }
@@ -100,7 +100,7 @@ void Object3d::add_line(int key, int value){
     set->insert(value);
 }
 
-std::vector<std::vector<int>*>* Object3d::get_vertices(){
+std::vector<std::vector<float>*>* Object3d::get_vertices(){
     return this->vertices;
 }
 

@@ -9,18 +9,18 @@
 class Object3d{
     protected:
         std::string name;
-        std::vector<std::vector<int>*>* vertices;
+        std::vector<std::vector<float>*>* vertices;
         std::list<std::vector<int>*>* faces;
         std::unordered_map<int, std::unordered_set<int>*>* lines; 
         void add_line(int key, int value);
     public:
-        Object3d(std::string& name, std::vector<std::vector<int>*>* vertices, std::list<std::vector<int>*>* faces);
+        Object3d(std::string& name, std::vector<std::vector<float>*>* vertices, std::list<std::vector<int>*>* faces);
         std::string get_name();
         int get_count_lines();
         int get_count_faces();
         int get_count_vertices();
         std::list<std::vector<int>*>* get_faces();
-        std::vector<std::vector<int>*>* get_vertices();
+        std::vector<std::vector<float>*>* get_vertices();
         ~Object3d();
 
 };
