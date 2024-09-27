@@ -169,16 +169,29 @@ void guardar_command(std::list<std::string>* words){
 
 void v_cercano_command(std::list<std::string>* words){
     if(words->size() == 4 || words->size() == 3){
-        int px, py, pz;
+        float px, py, pz;
+        std::string object_name = "";
         try{
-            px = std::stoi(words->back());
+            px = std::stof(words->back());
             words->pop_back();
-            py = std::stoi(words->back());
+            py = std::stof(words->back());
             words->pop_back();
-            pz = std::stoi(words->back());
+            pz = std::stof(words->back());
             words->pop_back();
-            //TO DO NEXT
-            std::cout << "\nComando valido";
+
+            if(words->size() == 4){
+                object_name = words->back();
+            }
+            int index;
+            float distance;
+            std::vector<float>* vertex = data_org->cercano(px, py, pz, object_name, index, distance);
+            if(vertex == nullptr){
+                if(object_name != "") std::cout << "\n(Objecto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
+                else std::cout << "\n(Memoria vacia) Nigun objeto ha sido cargado en memoria";
+                return;
+            }
+            std::cout << "(Resultado exitoso) El vertice " << index << " (" << vertex->at(0) << ", " << vertex->at(1) << ", " << vertex->at(2) << ") del objeto " << object_name << " es el mas cercano al punto";
+            std::cout << "(" << px << ", " << py << ", " << pz << "), a una distancia de " << distance;
             return;
         }catch(const std::exception& e){}
     }

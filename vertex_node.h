@@ -2,6 +2,7 @@
 #define __VERTEX_NODE_H__
 
 #include <vector>
+#include <string>
 
 //  FRONT
 //  __________________
@@ -29,11 +30,12 @@
 class VertexNode{
     protected:
         std::vector<VertexNode*> sons;
-        std::vector<float>  vertex; //x, y, z
+        std::vector<float>* vertex; //x, y, z
+        std::string object_name;
     public:
         VertexNode();
         ~VertexNode();
-        void addSon(VertexNode* son);
+        void addSon(VertexNode* node);
 };
 
 

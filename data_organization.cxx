@@ -258,6 +258,11 @@ bool DataOrganization::descargar(std::string object_name){
     return true;
 }
 
+
+std::vector<float>* DataOrganization::cercano(float vx, float vy, float vz,std::string& object_name, int& index, float& distance){
+
+}
+
 //destructor for DataOrganization, it deletes all the objects and then the map
 DataOrganization::~DataOrganization(){
     std::unordered_map<std::string, Object3d*>::iterator it = this->objects->begin();

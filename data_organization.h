@@ -14,6 +14,7 @@ class DataOrganization{
         std::string envolvente(std::string object_name);
         bool descargar(std::string object_name);
         bool guardar(std::string object_name, std::string file_name);
+        std::vector<float>* cercano(float vx, float vy, float vz,std::string& object_name, int& index, float& distance);
         ~DataOrganization();
 };
 
