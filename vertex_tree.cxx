@@ -6,7 +6,7 @@ VertexTree::~VertexTree(){}
 
 
 void VertexTree::addSon(std::vector<float>* vertex, int index, std::string object_name){
-    VertexNode* node = new VertexNode(vertex, index,0, object_name);
+    VertexNode* node = new VertexNode(vertex, index, 0, object_name);
 
     if(this->root == nullptr){
         this->root = node;

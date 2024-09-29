@@ -46,3 +46,6 @@ void VertexNode::addSon(VertexNode* node){
         }
     }
 }
+
+
+
