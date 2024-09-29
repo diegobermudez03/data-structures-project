@@ -2,6 +2,7 @@
 #define __VERTEX_TREE_H__
 
 #include "vertex_node.h"
+#include "tuple.h"
 
 class VertexTree{
     protected:
@@ -9,7 +10,7 @@ class VertexTree{
     public:
         VertexTree();
         void addSon(std::vector<float>* vertex, int index, std::string object_name);
-        VertexNode* searchNearest(float x, float y, float z);
+        Tuple<VertexNode*, float>* searchNearest(float x, float y, float z);
 };
 
 
