@@ -9,6 +9,7 @@ class VertexTree{
         VertexNode* root;
     public:
         VertexTree();
+        ~VertexTree();
         void addSon(std::vector<float>* vertex, int index, std::string object_name);
         Tuple2<VertexNode*, float>* searchNearest(float x, float y, float z);
 };

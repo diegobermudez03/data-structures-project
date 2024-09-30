@@ -15,7 +15,6 @@ VertexNode::VertexNode(std::vector<float>* vertex, int index, short axis, std::s
 }
 
 VertexNode::~VertexNode(){
-    delete this->vertex;
     delete this->left;
     delete this->right;
 }

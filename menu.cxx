@@ -2,10 +2,12 @@
 #include <vector>
 #include <unordered_map>
 #include <list>
+#include <iomanip>
 
 #include "object_3d.h"
 #include "data_organization.h"
-#include "tuple.h"
+#include "tuple2.h"
+#include "tuple3.h"
 
 void enter_command(std::string& command);
 
@@ -183,7 +185,7 @@ void v_cercano_command(std::list<std::string>* words){
             if(!words->empty()){
                 object_name = words->back();
             }
-            Tuple<VertexNode*, float>* nearest = data_org->cercano(px, py, pz, object_name);
+            Tuple2<VertexNode*, float>* nearest = data_org->cercano(px, py, pz, object_name);
             if(nearest == nullptr){
                 if(object_name != "") std::cout << "\n(Objecto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
                 else std::cout << "\n(Memoria vacia) Nigun objeto ha sido cargado en memoria";
@@ -193,6 +195,7 @@ void v_cercano_command(std::list<std::string>* words){
             std::cout << "(Resultado exitoso) El vertice " << nearest->getValue1()->getIndex() << " (" << vertex->at(0) << ", " << vertex->at(1) << ", " << vertex->at(2) << ") del objeto " << nearest->getValue1()->getObjectName() << " es el mas cercano al punto";
             std::cout << "(" << px << ", " << py << ", " << pz << "), a una distancia de " << nearest->getValue2();
 
+            delete nearest->getValue1();
             delete nearest;
             return;
         }catch(const std::exception& e){}
@@ -201,14 +204,51 @@ void v_cercano_command(std::list<std::string>* words){
     return;
 }
 
-void v_cercanos_caja_command(std::list<std::string>* words){
-    if(words->size() != 1){
-        std::cout << "\nComando invalido\n" << help_map["v_cercanos_caja"];
+
+void v_cercanos_caja_command(std::list<std::string>* words) {
+    if (words->size() == 1) {
+        std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* result = data_org->cercanosCaja(words->back());
+        if (result == nullptr) {
+            std::cout << "\n(Objeto no existe) El objeto " << words->back() << " no ha sido cargado en memoria.";
+        } else {
+            std::cout << "\n" << std::left << std::setw(15) <<  " " << std::setw(40) << "Esquina" 
+                      << std::setw(30) << "Vertice" 
+                      << std::setw(10) << "Distancia";
+            
+            std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>::iterator it = result->begin();
+            for (int i = 1; it != result->end(); ++it, i++) {
+                std::vector<float>* env_vertex = (**it).getValue1();
+                std::vector<float>* obj_vertex = (**it).getValue2()->getVertex();
+                int index = (**it).getValue2()->getIndex();
+                float distance = (**it).getValue3();
+
+                std::cout << std::fixed << std::setprecision(2);
+
+                std::cout << "\n" << std::left << std::setw(3) << i << std::setw(3) << " ("
+                          << std::setw(5) << env_vertex->at(0) << std::setw(3) << ", "
+                          << std::setw(5) << env_vertex->at(1) << std::setw(3) <<", "
+                          << std::setw(5) << env_vertex->at(2) << std::setw(3) << ")";
+                std::cout << std::setw(10) << " ";
+                std::cout << std::setw(3) << index << std::setw(3) << " ("
+                          << std::setw(5) << obj_vertex->at(0) << std::setw(3) <<", "
+                          << std::setw(5) << obj_vertex->at(1) << std::setw(3) <<", "
+                          << std::setw(5) << obj_vertex->at(2) << std::setw(3) <<")";
+                std::cout << std::setw(10) << " ";
+
+                std::cout << distance;
+
+                delete (**it).getValue1();
+                delete (**it).getValue2();
+                delete *it;
+            }
+            delete result;
+            return;
+        }
         return;
     }
-    //TO DO NEXT
-    std::cout << "\nComando valido";
+    std::cout << "\nComando invalido\n" << help_map["v_cercanos_caja"];
 }
+
 
 void ruta_corta_command(std::list<std::string>* words){
     if(words->size() == 3){

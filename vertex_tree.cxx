@@ -7,6 +7,9 @@ VertexTree::VertexTree(){
     this->root = nullptr;
 }
 
+VertexTree::~VertexTree(){
+    if(this->root != nullptr) delete this->root;
+}
 
 
 void VertexTree::addSon(std::vector<float>* vertex, int index, std::string object_name){
@@ -20,7 +23,7 @@ void VertexTree::addSon(std::vector<float>* vertex, int index, std::string objec
     }
 }
 
-Tuple<VertexNode*, float>* VertexTree::searchNearest(float x, float y, float z){
+Tuple2<VertexNode*, float>* VertexTree::searchNearest(float x, float y, float z){
     if(this->root == nullptr) return nullptr;
 
     std::vector<float>* searched_vertex = new std::vector<float>;
@@ -28,7 +31,7 @@ Tuple<VertexNode*, float>* VertexTree::searchNearest(float x, float y, float z){
     searched_vertex->push_back(y);
     searched_vertex->push_back(z);
 
-    Tuple<VertexNode*, float>* nearest =  this->root->nearestVertex(searched_vertex, nullptr);
+    Tuple2<VertexNode*, float>* nearest =  this->root->nearestVertex(searched_vertex, nullptr);
 
     delete searched_vertex;
     return nearest;

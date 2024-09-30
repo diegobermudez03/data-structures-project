@@ -287,6 +287,8 @@ Tuple2<VertexNode*, float>* DataOrganization::cercano(float vx, float vy, float 
         }
     }
     Tuple2<VertexNode*, float>* nearest = tree->searchNearest(vx, vy, vz);
+    VertexNode* copy = new VertexNode(nearest->getValue1()->getVertex(), nearest->getValue1()->getIndex(), 0, nearest->getValue1()->getObjectName());
+    nearest->setValue1(copy);
     delete tree;
     return nearest;
 }
@@ -311,7 +313,7 @@ std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* DataOrganization:
         envolvente_vertex->push_back((**vertex_it)[0]);
         envolvente_vertex->push_back((**vertex_it)[1]);
         envolvente_vertex->push_back((**vertex_it)[2]);
-        result->push_back(new Tuple3(envolvente_vertex,vertex->getValue1(),vertex->getValue2()));
+        result->push_back(new Tuple3<std::vector<float>*, VertexNode*, float>(envolvente_vertex,vertex->getValue1(),vertex->getValue2()));
     }
     this->descargar(envolvente_name);
     return result;
