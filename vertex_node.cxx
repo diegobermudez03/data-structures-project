@@ -3,12 +3,15 @@
 #include <cmath>
 
 #include "tuple.h"
+#include <iostream>
 
 VertexNode::VertexNode(std::vector<float>* vertex, int index, short axis, std::string object_name){
     this->vertex = vertex;
     this->index = index;
     this->cut_axis = axis;
     this->object_name = object_name;
+    this->right = nullptr;
+    this->left = nullptr;
 }
 
 VertexNode::~VertexNode(){
@@ -29,11 +32,11 @@ void VertexNode::setCutAxis(short axis){
 void VertexNode::addSon(VertexNode* node){
     std::vector<float>* vertex = node->getVertex();
     int next_cut_axis = cut_axis+1;
-    if(next_cut_axis > 2) next_cut_axis = 0;    
+    if(next_cut_axis > 2) next_cut_axis = 0;   
 
     //if the cut axis value is lower than us, then it goes on our left
-    if((*vertex)[this->cut_axis] < this->vertex->at(this->cut_axis)){
-        if(this->left == nullptr) this->left->addSon(node);
+    if(vertex->at(this->cut_axis) < this->vertex->at(this->cut_axis)){
+        if(this->left != nullptr) this->left->addSon(node);
         else{
             this->left = node;
             node->setCutAxis(next_cut_axis);
@@ -41,7 +44,7 @@ void VertexNode::addSon(VertexNode* node){
     }
     //if it's higher than us, it goes on our right
     else{
-        if(this->right == nullptr) this->right->addSon(node);
+        if(this->right != nullptr) this->right->addSon(node);
         else{
             this->right = node;
             node->setCutAxis(next_cut_axis);
@@ -54,10 +57,9 @@ void VertexNode::addSon(VertexNode* node){
 Tuple<VertexNode*, float>* VertexNode::nearestVertex(std::vector<float>* searching, Tuple<VertexNode*, float>* nearest_so_far){
 
     float distance = this->getDistance(searching, this->vertex);
-
     //if the nearest is null (first one), or if our distance is lower than the nearest one, then this is the new nearest
     if(nearest_so_far == nullptr || distance < nearest_so_far->getValue2()){
-        delete nearest_so_far;
+        if(nearest_so_far != nullptr) delete nearest_so_far;
         nearest_so_far = new Tuple<VertexNode*, float>(this, distance);
     }
 
@@ -80,15 +82,16 @@ Tuple<VertexNode*, float>* VertexNode::nearestVertex(std::vector<float>* searchi
     //the recursive case
     else{
         //we get the nearest vertex on the subtree of the area where the search vertex is in
-        Tuple<VertexNode*, float>* found = subtree_to_search->nearestVertex(searching, nearest_so_far);
+        nearest_so_far = subtree_to_search->nearestVertex(searching, nearest_so_far);
 
         //if the found nearest vertex absolute distance from the searched vertex is higher than 
         //the distance from the vertex to the cut axis, means that, there exists the possibility
         //that in the other side could be a nearest vertex, so only in that case we also check the opposite subtree
-        if(found->getValue2() > abs(searching->at(this->cut_axis) - this->vertex->at(this->cut_axis)) ){
-            found = opposite_tree->nearestVertex(searching, nearest_so_far);
+        if(nearest_so_far->getValue2() > abs(searching->at(this->cut_axis) - this->vertex->at(this->cut_axis)))
+        {
+            if(opposite_tree != nullptr) nearest_so_far = opposite_tree->nearestVertex(searching, nearest_so_far);
         }
-        return found;
+        return nearest_so_far;
     }
 }
 
@@ -99,4 +102,12 @@ float VertexNode::getDistance(std::vector<float>* vertex1,std::vector<float>* ve
     float z_value = (vertex1->at(2)-vertex2->at(2)) * (vertex1->at(2)-vertex2->at(2));
 
     return sqrt(x_value+y_value+z_value);
+}
+
+int VertexNode::getIndex(){
+    return this->index;
+}
+
+std::string VertexNode::getObjectName(){
+    return this->object_name;
 }

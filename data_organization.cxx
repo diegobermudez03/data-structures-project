@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <deque>
+#include "vertex_tree.h"
 
 short DataOrganization::load_file(std::string& file_name, std::list<std::vector<std::string>*>& result){
     //codes :
@@ -258,9 +259,33 @@ bool DataOrganization::descargar(std::string object_name){
     return true;
 }
 
+//if returns nullptr means that the object doesn't exist or there arent objects loaded
+//if it returns 
+Tuple<VertexNode*, float>* DataOrganization::cercano(float vx, float vy, float vz,std::string& object_name){
+    VertexTree* tree = new VertexTree;
 
-std::vector<float>* DataOrganization::cercano(float vx, float vy, float vz,std::string& object_name, int& index, float& distance){
+    //if we are searcing on all the objects
+    if(object_name == ""){
+        std::unordered_map<std::string, Object3d*>::iterator object_it = this->objects->begin();
+        for(; object_it != this->objects->end(); ++object_it){
+            std::vector<std::vector<float>*>::iterator vertex_it = object_it->second->get_vertices()->begin();
+            for(int i = 0; vertex_it != object_it->second->get_vertices()->end(); ++vertex_it, i++){
+                tree->addSon(*vertex_it, i, object_it->first);
+            }
+        }
+    }
+    //if we're only searching in a specific object
+    else{
+        std::unordered_map<std::string, Object3d*>::iterator it = this->objects->find(object_name);
+        if(it == this->objects->end()) return nullptr;  //if the object doesn't exist then return nullptr
 
+        Object3d* object = it->second;
+        std::vector<std::vector<float>*>::iterator vertex_it = object->get_vertices()->begin();
+        for(int i = 0; vertex_it != object->get_vertices()->end(); ++vertex_it, i++){
+            tree->addSon(*vertex_it, i, object->get_name());
+        }
+    }
+    return tree->searchNearest(vx, vy, vz);
 }
 
 //destructor for DataOrganization, it deletes all the objects and then the map

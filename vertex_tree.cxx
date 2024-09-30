@@ -1,10 +1,12 @@
 #include "vertex_tree.h"
 
 #include "tuple.h"
+#include <iostream>
 
-VertexTree::VertexTree(){}
+VertexTree::VertexTree(){
+    this->root = nullptr;
+}
 
-VertexTree::~VertexTree(){}
 
 
 void VertexTree::addSon(std::vector<float>* vertex, int index, std::string object_name){

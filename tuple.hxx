@@ -13,7 +13,7 @@ void Tuple<T, V>::setValue1(T value1){
 }
 
 template<typename T, typename  V>
-void Tuple<T, V>::setValue1(T value1){
+void Tuple<T, V>::setValue2(V value2){
     this->value2 = value2;
 }
 

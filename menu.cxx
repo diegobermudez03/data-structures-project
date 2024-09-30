@@ -5,6 +5,7 @@
 
 #include "object_3d.h"
 #include "data_organization.h"
+#include "tuple.h"
 
 void enter_command(std::string& command);
 
@@ -179,19 +180,20 @@ void v_cercano_command(std::list<std::string>* words){
             pz = std::stof(words->back());
             words->pop_back();
 
-            if(words->size() == 4){
+            if(!words->empty()){
                 object_name = words->back();
             }
-            int index;
-            float distance;
-            std::vector<float>* vertex = data_org->cercano(px, py, pz, object_name, index, distance);
-            if(vertex == nullptr){
+            Tuple<VertexNode*, float>* nearest = data_org->cercano(px, py, pz, object_name);
+            if(nearest == nullptr){
                 if(object_name != "") std::cout << "\n(Objecto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
                 else std::cout << "\n(Memoria vacia) Nigun objeto ha sido cargado en memoria";
                 return;
             }
-            std::cout << "(Resultado exitoso) El vertice " << index << " (" << vertex->at(0) << ", " << vertex->at(1) << ", " << vertex->at(2) << ") del objeto " << object_name << " es el mas cercano al punto";
-            std::cout << "(" << px << ", " << py << ", " << pz << "), a una distancia de " << distance;
+            std::vector<float>* vertex = nearest->getValue1()->getVertex();
+            std::cout << "(Resultado exitoso) El vertice " << nearest->getValue1()->getIndex() << " (" << vertex->at(0) << ", " << vertex->at(1) << ", " << vertex->at(2) << ") del objeto " << nearest->getValue1()->getObjectName() << " es el mas cercano al punto";
+            std::cout << "(" << px << ", " << py << ", " << pz << "), a una distancia de " << nearest->getValue2();
+
+            delete nearest;
             return;
         }catch(const std::exception& e){}
     }

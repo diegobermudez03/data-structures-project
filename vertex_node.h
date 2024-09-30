@@ -19,9 +19,11 @@ class VertexNode{
     public:
         VertexNode(std::vector<float>* vertex, int index, short axis, std::string object_name);
         ~VertexNode();
+        int getIndex();
         std::vector<float>* getVertex();
         void addSon(VertexNode* node);
         void setCutAxis(short axis);
+        std::string getObjectName();
         Tuple<VertexNode*, float>* nearestVertex(std::vector<float>* searching, Tuple<VertexNode*, float>* nearest_so_far);
 };
 
