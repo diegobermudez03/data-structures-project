@@ -3,7 +3,8 @@
 #include <vector>
 #include <unordered_map>
 #include "object_3d.h"
-#include "tuple.h"
+#include "tuple2.h"
+#include "tuple3.h"
 #include "vertex_node.h"
 
 class DataOrganization{
@@ -16,7 +17,8 @@ class DataOrganization{
         std::string envolvente(std::string object_name);
         bool descargar(std::string object_name);
         bool guardar(std::string object_name, std::string file_name);
-        Tuple<VertexNode*, float>* cercano(float vx, float vy, float vz,std::string& object_name);
+        Tuple2<VertexNode*, float>* cercano(float vx, float vy, float vz,std::string& object_name);
+        std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* cercanosCaja(std::string& object_name);
         ~DataOrganization();
 };
 

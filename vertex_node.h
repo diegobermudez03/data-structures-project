@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include "tuple.h"
+#include "tuple2.h"
 
 
 class VertexNode{
@@ -24,7 +24,7 @@ class VertexNode{
         void addSon(VertexNode* node);
         void setCutAxis(short axis);
         std::string getObjectName();
-        Tuple<VertexNode*, float>* nearestVertex(std::vector<float>* searching, Tuple<VertexNode*, float>* nearest_so_far);
+        Tuple2<VertexNode*, float>* nearestVertex(std::vector<float>* searching, Tuple2<VertexNode*, float>* nearest_so_far);
 };
 
 

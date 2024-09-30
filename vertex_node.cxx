@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "tuple.h"
+#include "tuple2.h"
 #include <iostream>
 
 VertexNode::VertexNode(std::vector<float>* vertex, int index, short axis, std::string object_name){
@@ -54,13 +54,13 @@ void VertexNode::addSon(VertexNode* node){
 
 
 //where the first value of the tuple is the vertex, and the second the distance between that vertex and the searching one
-Tuple<VertexNode*, float>* VertexNode::nearestVertex(std::vector<float>* searching, Tuple<VertexNode*, float>* nearest_so_far){
+Tuple2<VertexNode*, float>* VertexNode::nearestVertex(std::vector<float>* searching, Tuple2<VertexNode*, float>* nearest_so_far){
 
     float distance = this->getDistance(searching, this->vertex);
     //if the nearest is null (first one), or if our distance is lower than the nearest one, then this is the new nearest
     if(nearest_so_far == nullptr || distance < nearest_so_far->getValue2()){
         if(nearest_so_far != nullptr) delete nearest_so_far;
-        nearest_so_far = new Tuple<VertexNode*, float>(this, distance);
+        nearest_so_far = new Tuple2<VertexNode*, float>(this, distance);
     }
 
     VertexNode* subtree_to_search;

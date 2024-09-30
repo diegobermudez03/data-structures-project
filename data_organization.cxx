@@ -3,6 +3,7 @@
 #include <vector>
 #include <deque>
 #include "vertex_tree.h"
+#include "tuple3.h"
 
 short DataOrganization::load_file(std::string& file_name, std::list<std::vector<std::string>*>& result){
     //codes :
@@ -261,7 +262,7 @@ bool DataOrganization::descargar(std::string object_name){
 
 //if returns nullptr means that the object doesn't exist or there arent objects loaded
 //if it returns 
-Tuple<VertexNode*, float>* DataOrganization::cercano(float vx, float vy, float vz,std::string& object_name){
+Tuple2<VertexNode*, float>* DataOrganization::cercano(float vx, float vy, float vz,std::string& object_name){
     VertexTree* tree = new VertexTree;
 
     //if we are searcing on all the objects
@@ -285,8 +286,39 @@ Tuple<VertexNode*, float>* DataOrganization::cercano(float vx, float vy, float v
             tree->addSon(*vertex_it, i, object->get_name());
         }
     }
-    return tree->searchNearest(vx, vy, vz);
+    Tuple2<VertexNode*, float>* nearest = tree->searchNearest(vx, vy, vz);
+    delete tree;
+    return nearest;
 }
+
+
+
+std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* DataOrganization::cercanosCaja(std::string& object_name){
+    std::string envolvente_name = this->envolvente(object_name);
+
+    //if envolvente name is empty, means that the object didn't exist, so we return null
+    if(envolvente_name.empty()) return nullptr;
+
+    Object3d* envolvente = this->objects->find(envolvente_name)->second;
+    std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* result = new std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>;
+
+    std::vector<std::vector<float>*>::iterator vertex_it = envolvente->get_vertices()->begin();
+
+    for(; vertex_it != envolvente->get_vertices()->end(); ++vertex_it){
+        Tuple2<VertexNode*, float>* vertex = this->cercano((**vertex_it)[0], (**vertex_it)[1], (**vertex_it)[2], object_name);
+
+        std::vector<float>* envolvente_vertex = new std::vector<float>;
+        envolvente_vertex->push_back((**vertex_it)[0]);
+        envolvente_vertex->push_back((**vertex_it)[1]);
+        envolvente_vertex->push_back((**vertex_it)[2]);
+        result->push_back(new Tuple3(envolvente_vertex,vertex->getValue1(),vertex->getValue2()));
+    }
+    this->descargar(envolvente_name);
+    return result;
+
+}
+
+
 
 //destructor for DataOrganization, it deletes all the objects and then the map
 DataOrganization::~DataOrganization(){

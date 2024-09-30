@@ -1,6 +1,6 @@
 #include "vertex_tree.h"
 
-#include "tuple.h"
+#include "tuple2.h"
 #include <iostream>
 
 VertexTree::VertexTree(){
