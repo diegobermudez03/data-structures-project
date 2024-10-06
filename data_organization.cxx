@@ -4,6 +4,9 @@
 #include <deque>
 #include "vertex_tree.h"
 #include "tuple3.h"
+#include <algorithm>
+#include <cctype>
+
 
 short DataOrganization::load_file(std::string& file_name, std::list<std::vector<std::string>*>& result){
     //codes :
@@ -36,7 +39,18 @@ short DataOrganization::load_file(std::string& file_name, std::list<std::vector<
                 (*object_info)[1] = "2"; 
                 std::string line;
                 //to avoid all this object and go straight to the next one
-                while(line != "-1") file >> line;
+                while(true) {
+                    file >> line;
+                    if(line == "-1"){
+                        long long pos = file.tellg();
+                        if(file.eof()) break;
+                        file >> line;
+                        if(std::any_of(line.begin(), line.end(), ::isalpha)){
+                            file.seekg(pos);
+                            break;
+                        }
+                    }
+                }
                 continue;   //to continue to the next iteration
 
             }
@@ -49,7 +63,7 @@ short DataOrganization::load_file(std::string& file_name, std::list<std::vector<
             for(int i = 0; i < vertex_count; i++){
                 //we read the 3 axis of each vertex
                 if(file.eof()) return 0;
-                int x, y, z;
+                float x, y, z;
                 file >> x;
                 file >> y;
                 file >> z;
@@ -109,7 +123,7 @@ std::vector<Object3d*>* DataOrganization::get_objects(){
 
 std::string DataOrganization::envolvente(std::string object_name){
     //these variables will keep the maximum and minimum values for each axis
-    int x_max, x_min, y_max, y_min, z_max, z_min;
+    float x_max, x_min, y_max, y_min, z_max, z_min;
     //if object_name is empty, then its the global envolvente
     if(object_name.empty()){
         if(this->objects->empty()) return ""; //if there are no objects stored then we return empty string which the menu will recognize as no objects
@@ -140,7 +154,7 @@ std::string DataOrganization::envolvente(std::string object_name){
     //this way it gets all combinations which represent the location of the 8 vertices
     for(int i = 0; i < 8; i++){
         std::vector<float>* vertex = new std::vector<float>;
-        int x_n, y_n, z_n;
+        float x_n, y_n, z_n;
         if(i < 4) x_n = x_max;
         else x_n = x_min;
         if(i < 2 ||  (i >3 && i < 6)) y_n = y_max;
@@ -188,13 +202,13 @@ std::string DataOrganization::envolvente(std::string object_name){
 
 //this function simply iterates over the vertices of the object passed, and simply makes the maximum and minimum comparison
 //so at the end those variables will have the value of the maximum and minimum values of each axis
-void DataOrganization::get_points(Object3d* object, int& x_max, int& x_min, int& y_max, int& y_min, int& z_max, int& z_min, bool first){
+void DataOrganization::get_points(Object3d* object, float& x_max, float& x_min, float& y_max, float& y_min, float& z_max, float& z_min, bool first){
     std::vector<std::vector<float>*>* vertices = object->get_vertices();
     std::vector<std::vector<float>*>::iterator it = vertices->begin();
     for(; it != vertices->end(); ++it){
-        int x = (*it)->at(0);
-        int y = (*it)->at(1);
-        int z = (*it)->at(2);
+        float x = (*it)->at(0);
+        float y = (*it)->at(1);
+        float z = (*it)->at(2);
         if(first){
              x_max = x;
              x_min = x;

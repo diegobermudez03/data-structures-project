@@ -10,7 +10,7 @@
 class DataOrganization{
     protected:
         std::unordered_map<std::string, Object3d*>* objects = new std::unordered_map<std::string, Object3d*>;
-        void get_points(Object3d* object, int& x_max, int& x_min, int& y_max, int& y_min, int& z_max, int& z_min, bool first);
+        void get_points(Object3d* object, float& x_max, float& x_min, float& y_max, float& y_min, float& z_max, float& z_min, bool first);
     public:
         short load_file(std::string& file_name, std::list<std::vector<std::string>*>& result);
         std::vector<Object3d*>* get_objects();
