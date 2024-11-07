@@ -19,6 +19,9 @@ class DataOrganization{
         bool guardar(std::string object_name, std::string file_name);
         Tuple2<VertexNode*, float>* cercano(float vx, float vy, float vz,std::string& object_name);
         std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* cercanosCaja(std::string& object_name);
+        bool checkExistance(std::string object_name);
+        Tuple2<std::vector<int>*, double>* rutaCorta(int i1, int i2, std::string object_name);
+        Tuple3<std::vector<int>*, double, Tuple3<double, double, double>*>* rutaCortaCentro(int index, std::string object_name);
         ~DataOrganization();
 };
 

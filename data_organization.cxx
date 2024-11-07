@@ -281,6 +281,7 @@ Tuple2<VertexNode*, float>* DataOrganization::cercano(float vx, float vy, float 
 
     //if we are searcing on all the objects
     if(object_name == ""){
+        if(this->objects->empty()) return nullptr;
         std::unordered_map<std::string, Object3d*>::iterator object_it = this->objects->begin();
         for(; object_it != this->objects->end(); ++object_it){
             std::vector<std::vector<float>*>::iterator vertex_it = object_it->second->get_vertices()->begin();
@@ -310,7 +311,11 @@ Tuple2<VertexNode*, float>* DataOrganization::cercano(float vx, float vy, float 
 
 
 std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* DataOrganization::cercanosCaja(std::string& object_name){
-    std::string envolvente_name = this->envolvente(object_name);
+    bool previously_existing = false;
+    std::string envolvente_name = "env_" + object_name;
+    if(this->objects->find(envolvente_name) != this->objects->end()) previously_existing = true;
+    else envolvente_name = this->envolvente(object_name);
+    
 
     //if envolvente name is empty, means that the object didn't exist, so we return null
     if(envolvente_name.empty()) return nullptr;
@@ -329,9 +334,22 @@ std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* DataOrganization:
         envolvente_vertex->push_back((**vertex_it)[2]);
         result->push_back(new Tuple3<std::vector<float>*, VertexNode*, float>(envolvente_vertex,vertex->getValue1(),vertex->getValue2()));
     }
-    this->descargar(envolvente_name);
+    if(!previously_existing) this->descargar(envolvente_name);
     return result;
 
+}
+
+
+Tuple2<std::vector<int>*, double>* DataOrganization::rutaCorta(int i1, int i2, std::string object_name){
+}
+
+Tuple3<std::vector<int>*, double, Tuple3<double, double, double>*>* DataOrganization::rutaCortaCentro(int index, std::string object_name){
+
+}
+
+
+bool DataOrganization::checkExistance(std::string object_name){
+    return this->objects->find(object_name) != this->objects->end();
 }
 
 

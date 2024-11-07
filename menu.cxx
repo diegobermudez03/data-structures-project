@@ -198,7 +198,9 @@ void v_cercano_command(std::list<std::string>* words){
             delete nearest->getValue1();
             delete nearest;
             return;
-        }catch(const std::exception& e){}
+        }catch(const std::exception& e){
+            std::cout << "\nParametros invalidos";
+        }
     }
     std::cout << "\nComando invalido\n" << help_map["v_cercano"];
     return;
@@ -258,14 +260,38 @@ void ruta_corta_command(std::list<std::string>* words){
             words->pop_back();
             i2 = std::stoi(words->back());
             words->pop_back();
+            std::string object_name = words->back();
             //TO DO NEXT
-            std::cout << "\nComando valido";
+            if(!data_org->checkExistance(object_name)){
+                std::cout << "\n(Objeto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
+                return;
+            }
+            if(i1 == i2){
+                std::cout << "\n(Indices iguales) Los indices de los vertices dados son iguales";
+                return;
+            }
+            Tuple2<std::vector<int>*, double>* resultado = data_org->rutaCorta(i1, i2, object_name);
+            if(resultado == nullptr){
+                std::cout << "\n(Indices no existen) Algunos de los indices de vertices estan fuera de rango para el objeto " << object_name;
+                return;
+            }
+            std::cout << "\n(Resultado exitoso) La ruta mas corta que conecta los vertices " << i1 << " y " << i2 << " del objeto " << object_name << " pasa por: " << i1 << ", ";
+            std::vector<int>::iterator it = resultado->getValue1()->begin();
+            for(; it != resultado->getValue1()->end(); ++it){
+                std::cout <<  *it << ", ";
+            } 
+            std::cout << i2 << "; con una longitud de " << resultado->getValue2(); 
+            delete resultado->getValue1();
+            delete resultado;
             return;
-        }catch(const std::exception& e){}
+        }catch(const std::exception& e){
+            std::cout << "\nParametros invalidos";
+        }
     }
     std::cout << "\nComando invalido\n" << help_map["ruta_corta"];
     return;
 }
+
 
 void ruta_corta_centro_command(std::list<std::string>* words){
     if(words->size() == 2){
@@ -273,11 +299,31 @@ void ruta_corta_centro_command(std::list<std::string>* words){
         try{
             i1 = std::stoi(words->back());
             words->pop_back();
-        }catch(const std::exception& e){}
-        std::string object_name = words->back();
-        //TO DO NEXT
-        std::cout << "\nComando valido";
-        return;
+            std::string object_name = words->back();
+            if(!data_org->checkExistance(object_name)){
+                std::cout << "\n(Objeto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
+                return;
+            }
+            Tuple3<std::vector<int>*, double, Tuple3<double, double, double>*>* resultado = data_org->rutaCortaCentro(i1, object_name);
+            if(resultado == nullptr){
+                std::cout << "\n(Indice no existe) El indice de vertice esta fuera de rango para el objeto " << object_name;
+                return;
+            }
+            Tuple3<double, double, double>* centro = resultado->getValue3();
+            std::cout << "\n(Resultado exitoso) La ruta mas corta que conecta el vertice " << i1 << " con el centro del objeto " << object_name;
+            std::cout << " ubicado en ct( " << centro->getValue1() << ", " << centro->getValue2() << ", " << centro->getValue3() << " ), pasa por: " << i1 << ", ";
+            std::vector<int>::iterator it = resultado->getValue1()->begin();
+            for(; it != resultado->getValue1()->end(); ++it){
+                std::cout <<  *it << ", ";
+            } 
+            std::cout << "centro ; con una longitud de " << resultado->getValue2(); 
+            delete centro;
+            delete resultado->getValue1();
+            delete resultado;
+            return;
+        }catch(const std::exception& e){
+            std::cout << "\nParametros invalidos";
+        }
     }
     std::cout << "\nComando invalido\n" << help_map["ruta_corta"];
     return;

@@ -74,24 +74,16 @@ Tuple2<VertexNode*, float>* VertexNode::nearestVertex(std::vector<float>* search
         opposite_tree = this->right;
     }
 
-    //if the subtree to search is null, then we are the nearest vertex, so this is the base case
-    if(subtree_to_search == nullptr){
-        return nearest_so_far;
-    }
-    //the recursive case
-    else{
+    if(subtree_to_search != nullptr){
         //we get the nearest vertex on the subtree of the area where the search vertex is in
         nearest_so_far = subtree_to_search->nearestVertex(searching, nearest_so_far);
-
-        //if the found nearest vertex absolute distance from the searched vertex is higher than 
-        //the distance from the vertex to the cut axis, means that, there exists the possibility
-        //that in the other side could be a nearest vertex, so only in that case we also check the opposite subtree
-        if(nearest_so_far->getValue2() > abs(searching->at(this->cut_axis) - this->vertex->at(this->cut_axis)))
-        {
-            if(opposite_tree != nullptr) nearest_so_far = opposite_tree->nearestVertex(searching, nearest_so_far);
-        }
-        return nearest_so_far;
     }
+    //we check if is possible that the opposite tree has the nearest vertex
+    if(nearest_so_far->getValue2() > abs(searching->at(this->cut_axis) - this->vertex->at(this->cut_axis)))
+    {
+        if(opposite_tree != nullptr) nearest_so_far = opposite_tree->nearestVertex(searching, nearest_so_far);
+    }
+    return nearest_so_far;
 }
 
 float VertexNode::getDistance(std::vector<float>* vertex1,std::vector<float>* vertex2){
