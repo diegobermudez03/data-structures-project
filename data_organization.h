@@ -21,8 +21,8 @@ class DataOrganization{
         Tuple2<VertexNode*, float>* cercano(float vx, float vy, float vz,std::string& object_name);
         std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* cercanosCaja(std::string& object_name);
         bool checkExistance(std::string object_name);
-        Tuple2<std::deque<int>*, double>* rutaCorta(int i1, int i2, std::string object_name);
-        Tuple3<std::deque<int>*, double, Tuple3<double, double, double>*>* rutaCortaCentro(int index, std::string object_name);
+        Tuple2<std::deque<int>*, float>* rutaCorta(int i1, int i2, std::string object_name);
+        Tuple3<std::deque<int>*, float, Tuple3<float, float, float>*>* rutaCortaCentro(int index, std::string object_name);
         float DataOrganization::getDistance(std::vector<float>* vertex1,std::vector<float>* vertex2);
         ~DataOrganization();
 };

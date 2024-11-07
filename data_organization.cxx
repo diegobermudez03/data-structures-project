@@ -342,16 +342,17 @@ std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* DataOrganization:
 }
 
 
-Tuple2<std::deque<int>*, double>* DataOrganization::rutaCorta(int i1, int i2, std::string object_name){
-    //where each vertex of the object has a position in the vector, and each one has a tuple3, where (distance, previous_index, visited)
-    std::vector<Tuple3<double, int, bool>*>* table = new std::vector<Tuple3<double, int, bool>*>;
+Tuple2<std::deque<int>*, float>* DataOrganization::rutaCorta(int i1, int i2, std::string object_name){
     Object3d* object = this->objects->find(object_name)->second;
+    if(i1 >= object->get_count_vertices() || i2 >= object->get_count_vertices()) return nullptr; //if any index is out of bounds
+    //where each vertex of the object has a position in the vector, and each one has a tuple3, where (distance, previous_index, visited)
+    std::vector<Tuple3<float, int, bool>*>* table = new std::vector<Tuple3<float, int, bool>*>;
     table->resize(object->get_count_vertices());
 
     //initialize table
     for(int i = 0; i < object->get_count_vertices(); i++){
         //in this case, since negative distance doesn't exist in our context, then we use -1 to indicate infinite
-        (*table)[i] = new Tuple3<double, int, bool>(-1, -1, false);
+        (*table)[i] = new Tuple3<float, int, bool>(-1, -1, false);
     }
     (*table)[i1]->setValue1(0); //setting the initial distance to the initial node
     int current_index = i1;
@@ -359,12 +360,12 @@ Tuple2<std::deque<int>*, double>* DataOrganization::rutaCorta(int i1, int i2, st
         //setting this node as visited
         (*table)[current_index]->setValue3(true);
 
-        double distance_current_index = (*table)[current_index]->getValue1();
+        float distance_current_index = (*table)[current_index]->getValue1();
         std::unordered_set<int>* neighbors = object->get_neighbors_of(current_index);
         std::unordered_set<int>::iterator it = neighbors->begin();
         for(; it != neighbors->end(); ++it){
             //gets the distance from the current node to this neighbor
-            double distance = getDistance((*object->get_vertices())[*it], (*object->get_vertices())[*it]);
+            float distance = getDistance((*object->get_vertices())[*it], (*object->get_vertices())[*it]);
             distance += distance_current_index;     //in order to get the real current distance
             //if this distance is the shortest found
             if((*table)[*it]->getValue1() == -1 || (*table)[*it]->getValue1() > distance){
@@ -379,7 +380,7 @@ Tuple2<std::deque<int>*, double>* DataOrganization::rutaCorta(int i1, int i2, st
         //queue at the beginning, and then maybe its distance was updated to the shortest one, but the priority queue has other as the shortest,
         //so the priority queue would need to be remade everytime an update is made, which means a complexity of nlogn each time, so then, in this case, n is better
         int next_to_visit = -1;
-        double shortest_distance = -1;
+        float shortest_distance = -1;
         for(int i = 0; i < table->size(); i++){
             //if this node hasn't been visited
             if(!(*table)[i]->getValue3()){
@@ -406,10 +407,21 @@ Tuple2<std::deque<int>*, double>* DataOrganization::rutaCorta(int i1, int i2, st
         if(previous_index == i1) break;
         path->push_front(previous_index);
     }
-    return new Tuple2<std::deque<int>*, double>(path, (*table)[i2]->getValue1());
+
+    //free memory
+    for(int i = 0; i < table->size(); i++){
+        delete (*table)[i];
+    }
+    delete table;
+
+    return new Tuple2<std::deque<int>*, float>(path, (*table)[i2]->getValue1());
 }
 
-Tuple3<std::deque<int>*, double, Tuple3<double, double, double>*>* DataOrganization::rutaCortaCentro(int index, std::string object_name){
+Tuple3<std::deque<int>*, float, Tuple3<float, float, float>*>* DataOrganization::rutaCortaCentro(int index, std::string object_name){
+    Object3d* object = this->objects->find(object_name)->second;
+    if(index >= object->get_count_vertices()) return nullptr; //if the index is out of bounds
+    Tuple3<float, float, float>* center = object->getVertexCentro();
+    Tuple2<VertexNode*,float>* nearest = this->cercano(center->getValue1(), center->getValue2(), center->getValue3(), object_name);
 
 }
 

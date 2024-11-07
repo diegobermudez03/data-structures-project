@@ -270,7 +270,7 @@ void ruta_corta_command(std::list<std::string>* words){
                 std::cout << "\n(Indices iguales) Los indices de los vertices dados son iguales";
                 return;
             }
-            Tuple2<std::deque<int>*, double>* resultado = data_org->rutaCorta(i1, i2, object_name);
+            Tuple2<std::deque<int>*, float>* resultado = data_org->rutaCorta(i1, i2, object_name);
             if(resultado == nullptr){
                 std::cout << "\n(Indices no existen) Algunos de los indices de vertices estan fuera de rango para el objeto " << object_name;
                 return;
@@ -304,12 +304,12 @@ void ruta_corta_centro_command(std::list<std::string>* words){
                 std::cout << "\n(Objeto no existe) El objeto " << object_name << " no ha sido cargado en memoria";
                 return;
             }
-            Tuple3<std::deque<int>*, double, Tuple3<double, double, double>*>* resultado = data_org->rutaCortaCentro(i1, object_name);
+            Tuple3<std::deque<int>*, float, Tuple3<float, float, float>*>* resultado = data_org->rutaCortaCentro(i1, object_name);
             if(resultado == nullptr){
                 std::cout << "\n(Indice no existe) El indice de vertice esta fuera de rango para el objeto " << object_name;
                 return;
             }
-            Tuple3<double, double, double>* centro = resultado->getValue3();
+            Tuple3<float, float, float>* centro = resultado->getValue3();
             std::cout << "\n(Resultado exitoso) La ruta mas corta que conecta el vertice " << i1 << " con el centro del objeto " << object_name;
             std::cout << " ubicado en ct( " << centro->getValue1() << ", " << centro->getValue2() << ", " << centro->getValue3() << " ), pasa por: " << i1 << ", ";
             std::deque<int>::iterator it = resultado->getValue1()->begin();

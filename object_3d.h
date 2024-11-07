@@ -22,6 +22,7 @@ class Object3d{
         std::list<std::vector<int>*>* get_faces();
         std::vector<std::vector<float>*>* get_vertices();
         std::unordered_set<int>* get_neighbors_of(int index);
+        Tuple3<float, float, float>* getVertexCentro();
         ~Object3d();
 
 };

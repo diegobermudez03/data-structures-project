@@ -1,4 +1,5 @@
 #include "object_3d.h"
+#include "tuple3.h"
 #include <vector>
 #include <iostream>
 
@@ -110,4 +111,23 @@ std::vector<std::vector<float>*>* Object3d::get_vertices(){
 
 std::list<std::vector<int>*>* Object3d::get_faces(){
     return this->faces;
+}
+
+Tuple3<float, float, float>* Object3d::getVertexCentro() {
+    float sumX = 0.0, sumY = 0.0, sumZ = 0.0;
+    int vertexCount = this->vertices->size();
+    
+    std::vector<std::vector<float>*>::iterator it = this->vertices->begin();
+    for (; it != vertices->end(); ++it) {
+        std::vector<float>* vertex = *it;
+        sumX += (*vertex)[0];  
+        sumY += (*vertex)[1];  
+        sumZ += (*vertex)[2];  
+    }
+
+    float centerX = sumX / vertexCount;
+    float centerY = sumY / vertexCount;
+    float centerZ = sumZ / vertexCount;
+
+    return new Tuple3<float, float, float>(centerX, centerY, centerZ);
 }
