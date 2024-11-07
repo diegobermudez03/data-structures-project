@@ -21,6 +21,7 @@ class Object3d{
         int get_count_vertices();
         std::list<std::vector<int>*>* get_faces();
         std::vector<std::vector<float>*>* get_vertices();
+        std::unordered_set<int>* get_neighbors_of(int index);
         ~Object3d();
 
 };

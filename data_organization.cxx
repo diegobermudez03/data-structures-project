@@ -6,6 +6,8 @@
 #include "tuple3.h"
 #include <algorithm>
 #include <cctype>
+#include <cmath>
+#include <queue>
 
 
 short DataOrganization::load_file(std::string& file_name, std::list<std::vector<std::string>*>& result){
@@ -341,10 +343,71 @@ std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* DataOrganization:
 
 
 Tuple2<std::vector<int>*, double>* DataOrganization::rutaCorta(int i1, int i2, std::string object_name){
+    //where each vertex of the object has a position in the vector, and each one has a tuple3, where (distance, previous_index, visited)
+    std::vector<Tuple3<double, int, bool>*>* table = new std::vector<Tuple3<double, int, bool>*>;
+    Object3d* object = this->objects->find(object_name)->second;
+    table->resize(object->get_count_vertices());
+
+    //initialize table
+    for(int i = 0; i < object->get_count_vertices(); i++){
+        //in this case, since negative distance doesn't exist in our context, then we use -1 to indicate infinite
+        (*table)[i] = new Tuple3<double, int, bool>(-1, -1, false);
+    }
+    (*table)[i1]->setValue1(0); //setting the initial distance to the initial node
+    int current_index = i1;
+    while(true){
+        //setting this node as visited
+        (*table)[current_index]->setValue3(true);
+
+        double distance_current_index = (*table)[current_index]->getValue1();
+        std::unordered_set<int>* neighbors = object->get_neighbors_of(current_index);
+        std::unordered_set<int>::iterator it = neighbors->begin();
+        for(; it != neighbors->end(); ++it){
+            //gets the distance from the current node to this neighbor
+            double distance = getDistance((*object->get_vertices())[*it], (*object->get_vertices())[*it]);
+            distance += distance_current_index;     //in order to get the real current distance
+            //if this distance is the shortest found
+            if((*table)[*it]->getValue1() == -1 || (*table)[*it]->getValue1() > distance){
+                //we set the distance of the neighbor and set ourselves as the previous node
+                (*table)[*it]->setValue1(distance);
+                (*table)[*it]->setValue2(current_index);
+            }
+        }
+
+        //this section is to get the next non already visited node with the shortest distance its what we should do with a priority queue,
+        //but that priority queue has a problem, and it's that the distances can be updated, so a Tuple may be positioned in any part of the priority
+        //queue at the beginning, and then maybe its distance was updated to the shortest one, but the priority queue has other as the shortest,
+        //so the priority queue would need to be remade everytime an update is made, which means a complexity of nlogn each time, so then, in this case, n is better
+        int next_to_visit = -1;
+        double shortest_distance = -1;
+        for(int i = 0; i < table->size(); i++){
+            //if this node hasn't been visited
+            if(!(*table)[i]->getValue3()){
+                if(shortest_distance == -1 || shortest_distance > (*table)[i]->getValue1()){
+                    next_to_visit == i;
+                    shortest_distance = (*table)[i]->getValue1();
+                }
+            }
+        }
+        if(next_to_visit == i2){
+            //if the next to visit is the destination vertex, then we already have the shortesr possible path
+            break;
+        }
+        current_index = next_to_visit;
+    }
 }
 
 Tuple3<std::vector<int>*, double, Tuple3<double, double, double>*>* DataOrganization::rutaCortaCentro(int index, std::string object_name){
 
+}
+
+
+float DataOrganization::getDistance(std::vector<float>* vertex1,std::vector<float>* vertex2){
+
+    float x_value = (vertex1->at(0)-vertex2->at(0)) * (vertex1->at(0)-vertex2->at(0));
+    float y_value = (vertex1->at(1)-vertex2->at(1)) * (vertex1->at(1)-vertex2->at(1));
+    float z_value = (vertex1->at(2)-vertex2->at(2)) * (vertex1->at(2)-vertex2->at(2));
+    return sqrt(x_value+y_value+z_value);
 }
 
 

@@ -69,6 +69,10 @@ Object3d::~Object3d(){
     }
 }
 
+ std::unordered_set<int>* Object3d::get_neighbors_of(int index){
+    return this->lines->find(index)->second;
+ }
+
 std::string Object3d::get_name(){
     return this->name;
 }
