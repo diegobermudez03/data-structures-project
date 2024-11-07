@@ -1,6 +1,7 @@
 #ifndef __DATA_ORGANIZATION__H__
 #define __DATA_ORGANIZATION__H__
 #include <vector>
+#include <deque>
 #include <unordered_map>
 #include "object_3d.h"
 #include "tuple2.h"
@@ -20,8 +21,8 @@ class DataOrganization{
         Tuple2<VertexNode*, float>* cercano(float vx, float vy, float vz,std::string& object_name);
         std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* cercanosCaja(std::string& object_name);
         bool checkExistance(std::string object_name);
-        Tuple2<std::vector<int>*, double>* rutaCorta(int i1, int i2, std::string object_name);
-        Tuple3<std::vector<int>*, double, Tuple3<double, double, double>*>* rutaCortaCentro(int index, std::string object_name);
+        Tuple2<std::deque<int>*, double>* rutaCorta(int i1, int i2, std::string object_name);
+        Tuple3<std::deque<int>*, double, Tuple3<double, double, double>*>* rutaCortaCentro(int index, std::string object_name);
         float DataOrganization::getDistance(std::vector<float>* vertex1,std::vector<float>* vertex2);
         ~DataOrganization();
 };

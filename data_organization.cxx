@@ -342,7 +342,7 @@ std::vector<Tuple3<std::vector<float>*, VertexNode*, float>*>* DataOrganization:
 }
 
 
-Tuple2<std::vector<int>*, double>* DataOrganization::rutaCorta(int i1, int i2, std::string object_name){
+Tuple2<std::deque<int>*, double>* DataOrganization::rutaCorta(int i1, int i2, std::string object_name){
     //where each vertex of the object has a position in the vector, and each one has a tuple3, where (distance, previous_index, visited)
     std::vector<Tuple3<double, int, bool>*>* table = new std::vector<Tuple3<double, int, bool>*>;
     Object3d* object = this->objects->find(object_name)->second;
@@ -395,9 +395,21 @@ Tuple2<std::vector<int>*, double>* DataOrganization::rutaCorta(int i1, int i2, s
         }
         current_index = next_to_visit;
     }
+
+
+    //now we're going to reconstruct the path and create the output
+    std::deque<int>* path = new std::deque<int>;
+    current_index = i2;
+    //we go from back to front, from the destination index all the way to the initial one
+    while(true){
+        int previous_index = (*table)[current_index]->getValue2();
+        if(previous_index == i1) break;
+        path->push_front(previous_index);
+    }
+    return new Tuple2<std::deque<int>*, double>(path, (*table)[i2]->getValue1());
 }
 
-Tuple3<std::vector<int>*, double, Tuple3<double, double, double>*>* DataOrganization::rutaCortaCentro(int index, std::string object_name){
+Tuple3<std::deque<int>*, double, Tuple3<double, double, double>*>* DataOrganization::rutaCortaCentro(int index, std::string object_name){
 
 }
 
