@@ -374,6 +374,7 @@ Tuple2<std::deque<int>*, float>* DataOrganization::rutaCorta(int i1, int i2, std
                 (*table)[*it]->setValue2(current_index);
             }
         }
+        delete neighbors;
 
         //this section is to get the next non already visited node with the shortest distance its what we should do with a priority queue,
         //but that priority queue has a problem, and it's that the distances can be updated, so a Tuple may be positioned in any part of the priority
@@ -396,8 +397,6 @@ Tuple2<std::deque<int>*, float>* DataOrganization::rutaCorta(int i1, int i2, std
         }
         current_index = next_to_visit;
     }
-
-
     //now we're going to reconstruct the path and create the output
     std::deque<int>* path = new std::deque<int>;
     current_index = i2;
@@ -417,12 +416,38 @@ Tuple2<std::deque<int>*, float>* DataOrganization::rutaCorta(int i1, int i2, std
     return new Tuple2<std::deque<int>*, float>(path, (*table)[i2]->getValue1());
 }
 
+
 Tuple3<std::deque<int>*, float, Tuple3<float, float, float>*>* DataOrganization::rutaCortaCentro(int index, std::string object_name){
     Object3d* object = this->objects->find(object_name)->second;
     if(index >= object->get_count_vertices()) return nullptr; //if the index is out of bounds
+
+    //we get the center vertec and then we get the nearest vertex to that one in order to connect it
     Tuple3<float, float, float>* center = object->getVertexCentro();
     Tuple2<VertexNode*,float>* nearest = this->cercano(center->getValue1(), center->getValue2(), center->getValue3(), object_name);
 
+    //we add the new vertex to the object
+    std::vector<float>* new_vertex = new std::vector<float>;
+    new_vertex->push_back(center->getValue1());
+    new_vertex->push_back(center->getValue2());
+    new_vertex->push_back(center->getValue3());
+    object->get_vertices()->push_back(new_vertex);
+
+    //we add the connection from the nearest vertex to the center one we just added
+    int index_nearest = nearest->getValue1()->getIndex();
+    int index_center = object->get_count_vertices()-1;
+    object->get_lines_of(index_nearest)->insert(index_center);
+
+    Tuple2<std::deque<int>*, float>* result = this->rutaCorta(index, index_center, object_name);
+    Tuple3<std::deque<int>*, float, Tuple3<float, float, float>*>* to_return = new Tuple3<std::deque<int>*, float, Tuple3<float, float, float>*>(result->getValue1(), result->getValue2(), center);
+
+    //we free memory
+    delete result;
+    delete new_vertex;
+    //delete the center vertex from the object
+    object->get_lines_of(index_nearest)->erase(index_center);
+    object->get_vertices()->pop_back();
+    
+    return to_return;
 }
 
 

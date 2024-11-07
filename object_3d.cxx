@@ -70,9 +70,28 @@ Object3d::~Object3d(){
     }
 }
 
- std::unordered_set<int>* Object3d::get_neighbors_of(int index){
+std::unordered_set<int>* Object3d::get_neighbors_of(int index){
+    //the thing is that, in order to get the count of lines in the object, in the component 1, I implemented
+    // a way in which a line is only stored once, like unidirectional, but for this component's grpah's exercise then
+    //we do need the bidirectional aspect, so then this function returns a set of neighbors, and has to check if it has a 
+    //neighbor where that neighbor has the reference to him instead of him to him.
+    std::unordered_set<int>* copy = new std::unordered_set<int>;
+    std::unordered_set<int>::iterator set_it = this->lines->find(index)->second->begin();
+    for(; set_it != this->lines->find(index)->second->end(); ++set_it){
+        copy->insert(*set_it);
+    }
+    std::unordered_map<int, std::unordered_set<int>*>:: iterator it = this->lines->begin();
+    for(; it !=this->lines->end();++it ){
+        if(it->second->find(index) != it->second->end()){
+            copy->insert(it->first);
+        }
+    }
+    return copy;
+}
+
+std::unordered_set<int>* Object3d::get_lines_of(int index){
     return this->lines->find(index)->second;
- }
+}
 
 std::string Object3d::get_name(){
     return this->name;
