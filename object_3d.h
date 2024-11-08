@@ -5,13 +5,14 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
+#include "tuple3.h"
 
 class Object3d{
     protected:
         std::string name;
         std::vector<std::vector<float>*>* vertices;
         std::list<std::vector<int>*>* faces;
-        std::unordered_map<int, std::unordered_set<int>*>* lines; 
+        std::vector<std::unordered_set<int>*>* lines;
         void add_line(int key, int value);
     public:
         Object3d(std::string& name, std::vector<std::vector<float>*>* vertices, std::list<std::vector<int>*>* faces);

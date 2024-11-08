@@ -285,7 +285,9 @@ void ruta_corta_command(std::list<std::string>* words){
             delete resultado;
             return;
         }catch(const std::exception& e){
+            std::cout << "\n" << e.what();
             std::cout << "\nParametros invalidos";
+            return;
         }
     }
     std::cout << "\nComando invalido\n" << help_map["ruta_corta"];
@@ -323,6 +325,7 @@ void ruta_corta_centro_command(std::list<std::string>* words){
             return;
         }catch(const std::exception& e){
             std::cout << "\nParametros invalidos";
+            return;
         }
     }
     std::cout << "\nComando invalido\n" << help_map["ruta_corta"];

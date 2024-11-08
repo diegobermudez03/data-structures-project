@@ -23,7 +23,7 @@ class DataOrganization{
         bool checkExistance(std::string object_name);
         Tuple2<std::deque<int>*, float>* rutaCorta(int i1, int i2, std::string object_name);
         Tuple3<std::deque<int>*, float, Tuple3<float, float, float>*>* rutaCortaCentro(int index, std::string object_name);
-        float DataOrganization::getDistance(std::vector<float>* vertex1,std::vector<float>* vertex2);
+        float getDistance(std::vector<float>* vertex1,std::vector<float>* vertex2);
         ~DataOrganization();
 };
 
