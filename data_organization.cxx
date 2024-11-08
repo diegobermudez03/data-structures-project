@@ -355,18 +355,15 @@ Tuple2<std::deque<int>*, float>* DataOrganization::rutaCorta(int i1, int i2, std
         table->push_back(new Tuple3<float, int, bool>(-1, -1, false));
     }
     table->at(i1)->setValue1(0); //setting the initial distance to the initial node
-    std::cout << "\n current index es " << i1 << " y count vertices es " << object->get_count_vertices();
     int current_index = i1;
-    int counter = 10;
-    while(counter > 0){
-        counter--;
+    while(true){
         //setting this node as visited
         table->at(current_index)->setValue3(true);
 
         float distance_current_index = table->at(current_index)->getValue1();
-        //std::unordered_set<int>* neighbors = object->get_lines_of(current_index);
-        //std::unordered_set<int>::iterator it = neighbors->begin();
-        /*for(; it != neighbors->end(); ++it){
+        std::unordered_set<int>* neighbors = object->get_neighbors_of(current_index);
+        std::unordered_set<int>::iterator it = neighbors->begin();
+        for(; it != neighbors->end(); ++it){
             //gets the distance from the current node to this neighbor
             float distance = getDistance((*object->get_vertices())[current_index], (*object->get_vertices())[*it]);
             distance += distance_current_index;     //in order to get the real current distance
@@ -376,8 +373,8 @@ Tuple2<std::deque<int>*, float>* DataOrganization::rutaCorta(int i1, int i2, std
                 (*table)[*it]->setValue1(distance);
                 (*table)[*it]->setValue2(current_index);
             }
-        }*/
-        //delete neighbors;
+        }
+        delete neighbors;
 
         //this section is to get the next non already visited node with the shortest distance its what we should do with a priority queue,
         //but that priority queue has a problem, and it's that the distances can be updated, so a Tuple may be positioned in any part of the priority
@@ -387,7 +384,7 @@ Tuple2<std::deque<int>*, float>* DataOrganization::rutaCorta(int i1, int i2, std
         float shortest_distance = -1;
         for(int i = 0; i < table->size(); i++){
             //if this node hasn't been visited
-            if(!table->at(i)->getValue3()){
+            if(!table->at(i)->getValue3() && table->at(i)->getValue1() != -1){
                 if(shortest_distance == -1 || shortest_distance > table->at(i)->getValue1()){
                     next_to_visit = i;
                     shortest_distance = table->at(i)->getValue1();
@@ -404,12 +401,13 @@ Tuple2<std::deque<int>*, float>* DataOrganization::rutaCorta(int i1, int i2, std
     std::deque<int>* path = new std::deque<int>;
     current_index = i2;
     //we go from back to front, from the destination index all the way to the initial one
-    /*while(true){
+
+    while(true){
         int previous_index = (*table)[current_index]->getValue2();
         if(previous_index == i1) break;
         path->push_front(previous_index);
         current_index = previous_index;
-    }*/
+    }
 
     Tuple2<std::deque<int>*, float>* to_return = new Tuple2<std::deque<int>*, float>(path, (*table)[i2]->getValue1());
 
@@ -457,13 +455,13 @@ Tuple3<std::deque<int>*, float, Tuple3<float, float, float>*>* DataOrganization:
 }
 
 
-float DataOrganization::getDistance(std::vector<float>* vertex1,std::vector<float>* vertex2){
-
-    float x_value = (vertex1->at(0)-vertex2->at(0)) * (vertex1->at(0)-vertex2->at(0));
-    float y_value = (vertex1->at(1)-vertex2->at(1)) * (vertex1->at(1)-vertex2->at(1));
-    float z_value = (vertex1->at(2)-vertex2->at(2)) * (vertex1->at(2)-vertex2->at(2));
-    return sqrt(x_value+y_value+z_value);
+float DataOrganization::getDistance(std::vector<float>* vertex1, std::vector<float>* vertex2) {
+    float x_value = std::abs(vertex1->at(0) - vertex2->at(0));
+    float y_value = std::abs(vertex1->at(1) - vertex2->at(1));
+    float z_value = std::abs(vertex1->at(2) - vertex2->at(2));
+    return x_value + y_value + z_value;
 }
+
 
 
 bool DataOrganization::checkExistance(std::string object_name){

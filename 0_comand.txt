@@ -1,0 +1,1 @@
+g++ -std=c++11 data_organization.cxx menu.cxx object_3d.cxx vertex_node.cxx vertex_tree.cxx -o o.out
