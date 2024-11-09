@@ -456,11 +456,12 @@ Tuple3<std::deque<int>*, float, Tuple3<float, float, float>*>* DataOrganization:
 
 
 float DataOrganization::getDistance(std::vector<float>* vertex1, std::vector<float>* vertex2) {
-    float x_value = std::abs(vertex1->at(0) - vertex2->at(0));
-    float y_value = std::abs(vertex1->at(1) - vertex2->at(1));
-    float z_value = std::abs(vertex1->at(2) - vertex2->at(2));
-    return x_value + y_value + z_value;
+    float x_diff = vertex1->at(0) - vertex2->at(0);
+    float y_diff = vertex1->at(1) - vertex2->at(1);
+    float z_diff = vertex1->at(2) - vertex2->at(2);
+    return std::sqrt(x_diff * x_diff + y_diff * y_diff + z_diff * z_diff);
 }
+
 
 
 
